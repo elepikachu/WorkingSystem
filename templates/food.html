@@ -3,6 +3,7 @@
 <html>
 <head>
 <title>{{ ver }}-随机选择器</title>
+<link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
@@ -96,6 +97,10 @@ body {
     display: inline-block;
 }
 
+.highlight{
+    background-color: #273c75;
+}
+
 /* 底部 */
 .footer {
     padding: 20px;
@@ -133,9 +138,9 @@ body {
 <div class="row">
   <div class="container">
       <p>
-      请输入要选择的东西，以中文逗号隔开（例：麦当劳，肯德基，必胜客）输入完成后按回车确认，让选择器帮你选择
+      请输入要选择的东西，以中文逗号隔开（例：麦当劳，肯德基，必胜客）输入完成后按回车确认，让选择器帮你做出选择
       </p>
-      <textarea placeholder="enter your choice here.." id="textarea"></textarea>
+          <textarea placeholder="enter your choice here.." id="textarea"></textarea>
       <div id="tags">
           <span class="tag">选项1</span>
           <span class="tag">选项2</span>
@@ -150,9 +155,6 @@ body {
   <h2>
       powered by elepikachu
   </h2>
-    <p>
-        版权所有：中国石油勘探开发研究院-新能源研发中心-周泽
-    </p>
 </div>
 
 </body>
