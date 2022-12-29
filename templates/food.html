@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+<title>{{ ver }}-随机选择器</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+/* body 样式 */
+body {
+    font-family: Arial;
+    margin: 0;
+}
+
+/* 标题 */
+.header {
+    padding: 30px;
+    text-align: center;
+    background: darkgray;
+    color: white;
+}
+
+/* 标题字体加大 */
+.header h1 {
+    font-size: 40px;
+}
+
+/* 导航 */
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+}
+
+/* 导航栏样式 */
+.navbar a {
+    float: bottom;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+/* 鼠标移动到链接的颜色 */
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* 列容器 */
+.row {
+    display: -ms-flexbox; /* IE10 */
+    display: flex;
+    -ms-flex-wrap: wrap; /* IE10 */
+    flex-wrap: wrap;
+}
+
+.side h5 {
+    font-size: 20px;
+}
+
+.side a {
+    font-size: 20px;
+}
+
+/* 主要的内容区域 */
+.container {
+    -ms-flex: 70%; /* IE10 */
+    flex: 70%;
+    height: 600px;
+    background-color: lightcyan;
+    padding: 20px;
+}
+
+#textarea{
+    border:none;
+    display: block;
+    width:100%;
+    height:100px;
+    font-size:16px;
+    margin:0 0 20px;
+    padding: 10px;
+}
+
+.tag{
+    background-color: powderblue;
+    color:#fff;
+    border-radius: 50px;
+    padding:10px 20px;
+    margin:0 5px 10px 0;
+    font-size: 14px;
+    display: inline-block;
+}
+
+/* 底部 */
+.footer {
+    padding: 20px;
+    text-align: center;
+    background: #ddd;
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 700px 时, 让两栏上下堆叠显示 */
+@media screen and (max-width: 700px) {
+    .row {
+        flex-direction: column;
+    }
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 400px 时, 让导航栏目上下堆叠显示 */
+@media screen and (max-width: 400px) {
+    .navbar a {
+        float: none;
+        width: 100%;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>{{ ver }}-随机选择器</h1>
+  <p>Welcome to elepikachu's tool site</p>
+</div>
+
+<div class="navbar">
+  <a href="/">返回首页</a>
+</div>
+
+<div class="row">
+  <div class="container">
+      <p>
+      请输入要选择的东西，以中文逗号隔开（例：麦当劳，肯德基，必胜客）输入完成后按回车确认，让选择器帮你选择
+      </p>
+      <textarea placeholder="enter your choice here.." id="textarea"></textarea>
+      <div id="tags">
+          <span class="tag">选项1</span>
+          <span class="tag">选项2</span>
+          <span class="tag">选项3</span>
+      </div>
+  </div>
+</div>
+
+<script src="{% static 'js/choice.js' %}"></script>
+
+<div class="footer">
+  <h2>
+      powered by elepikachu
+  </h2>
+    <p>
+        版权所有：中国石油勘探开发研究院-新能源研发中心-周泽
+    </p>
+</div>
+
+</body>
+</html>
