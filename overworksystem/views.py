@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 
 
 VERSION = '小皮的工具库 1.0.0'

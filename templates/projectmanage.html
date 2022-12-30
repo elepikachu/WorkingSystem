@@ -65,14 +65,6 @@ body {
     flex-wrap: wrap;
 }
 
-/* 创建两个列 */
-/* 边栏 */
-.side {
-    -ms-flex: 30%; /* IE10 */
-    flex: 30%;
-    background-color: #f1f1f1;
-    padding: 20px;
-}
 
 /* 主要的内容区域 */
 .main {
@@ -80,14 +72,9 @@ body {
     flex: 70%;
     background-color: white;
     padding: 20px;
+    text-align: center;
 }
 
-/* 测试图片 */
-.fakeimg {
-    background-color: #aaa;
-    width: 100%;
-    padding: 20px;
-}
 
 /* 底部 */
 .footer {
@@ -113,43 +100,55 @@ body {
 </style>
 </head>
 <body>
-
+<form action="/project/manage" method="post">
+{% csrf_token %}
 <div class="header">
   <h1>{{ ver }}-管理模式</h1>
   <p>Welcome to elepikachu's tool site</p>
 </div>
 
 <div class="navbar">
-  <a href="#">提交模式</a>
-  <a href="#">管理模式</a>
-  <a href="#">查看日志</a>
-  <a href="/" class="right">返回首页</a>
+  <a href="/project">应用首页</a>
+  <a href="submit">提交模式</a>
+  <a href="manage">管理模式</a>
+  <a href="log">查看日志</a>
+  <a href="/" class="right">返回主页</a>
 </div>
 
 <div class="row">
-  <div class="side">
-      <h2>关于我</h2>
-      <h5>我的照片:</h5>
-      <div class="fakeimg" style="height:200px;">这边插入图像</div>
-      <p>关于我的介绍..</p>
-      <h3>更多内容</h3>
-      <p>我的更多内容</p>
-      <div class="fakeimg" style="height:60px;">这边插入图像</div><br>
-      <div class="fakeimg" style="height:60px;">这边插入图像</div><br>
-      <div class="fakeimg" style="height:60px;">这边插入图像</div>
-  </div>
   <div class="main">
-      <h2>标题</h2>
-      <h5>副标题</h5>
-      <div class="fakeimg" style="height:200px;">图像</div>
-      <p>一些文本..</p>
-      <p>菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！</p>
-      <br>
-      <h2>标题</h2>
-      <h5>副标题</h5>
-      <div class="fakeimg" style="height:200px;">图像</div>
-      <p>一些文本..</p>
-      <p>菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！</p>
+      <h3>项目信息</h3>
+      <input type="submit" name="del" value="批量管理" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="self" value="个人信息管理" size="5"><br /><br />
+
+    <table border="1">
+        <tr>
+            <th>id</th>
+            <th>完成人</th>
+            <th>项目组</th>
+            <th>项目名称</th>
+            <th>开始时间</th>
+            <th>计划完成</th>
+            <th>计划类别</th>
+            <th>完成情况</th>
+        </tr>
+        {% for item in data %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.person }}</td>
+                <td>{{ item.group }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.date }}</td>
+                <td>{{ item.enddate }}</td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.finish }}</td>
+                <td>
+                    <a href="/project/update_project/{{ item.id }}">更新</a>
+                    <a href="/project/delete_project/{{ item.id }}">删除</a>
+                </td>
+            </tr>
+        {%  endfor %}
+    </table>
   </div>
 </div>
 
@@ -158,6 +157,6 @@ body {
       powered by elepikachu
   </h2>
 </div>
-
+</form>
 </body>
 </html>

@@ -1,8 +1,20 @@
 from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect
+from .models import Project, ProjectLog
+import datetime
 
 # Create your views here.
 
 VERSION = '项目管理系统 1.0.0'
+
+
+def get_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 
 def project_view(request):
@@ -11,12 +23,90 @@ def project_view(request):
 
 
 def submit_view(request):
-    pass
+    if request.method == 'GET':
+        date = datetime.date.today()
+        datee = date + datetime.timedelta(weeks=1)
+        date1 = date.strftime('%Y-%m-%d')
+        date2 = datee.strftime('%Y-%m-%d')
+        print(date1)
+        print(date2)
+        dic = {'ver': VERSION, 'date1': date1, 'date2': date2}
+        return render(request, 'projectsubmit.html', dic)
+    elif request.method == 'POST':
+        if request.POST.haskey('sub'):
+            name = request.POST['name']
+            person = request.POST['person']
+            group = request.POST['group']
+            date = request.POST['date']
+            enddate = request.POST['enddate']
+            detail = request.POST['detail']
+            classification = request.POST['classification']
+            id = Project.objects.latest('id')
+            Project.objects.create(id=id, name=name, person=person, group=group, date=date, enddate=enddate,
+                                   detail=detail, classification=classification, finish=False)
+            idx = ProjectLog.objects.latest('id')
+            ProjectLog.objects.create(id=idx + 1, ip=get_ip(request), time=datetime.datetime.today(), cmd='insert',
+                                      detail='%s-%s-%s'%(name, person, detail))
+            return HttpResponseRedirect('/project/manage')
+
 
 
 def manage_view(request):
-    pass
+    if request.method == 'GET':
+        all_data = Project.objects.all()
+        dic = {'ver': VERSION, 'data': all_data}
+        return render(request, 'projectmanage.html', dic)
+
+
+def update_project(request, project_id):
+    try:
+        project = Project.objects.get(id=project_id)
+    except Exception as e:
+        print('--update error is %s' % e)
+        return HttpResponse('--The project is not existed!!--')
+    if request.method == 'GET':
+        return render(request, 'projectupdate.html', locals())
+    elif request.method == 'POST':
+        name = request.POST['name']
+        person = request.POST['person']
+        group = request.POST['group']
+        date = request.POST['date']
+        enddate = request.POST['enddate']
+        detail = request.POST['detail']
+        classification = request.POST['classification']
+        finish = request.POST['finish']
+        project.name = name
+        project.person = person
+        project.group = group
+        project.date = date
+        project.enddate = enddate
+        project.detail = detail
+        project.classification = classification
+        project.finish = finish
+        project.save()
+        idx = ProjectLog.objects.latest('id')
+        ProjectLog.objects.create(id=idx+1, ip=get_ip(request), time=datetime.datetime.today(), cmd='update',
+                                  detail='%s-%s-%s'%(name, person, detail))
+        return HttpResponseRedirect('/project/manage')
+
+
+def delete_project(request, project_id):
+    try:
+        project = Project.objects.get(id=project_id)
+        name = project.name
+        person = project.person
+        project.delete()
+        idx = ProjectLog.objects.latest('id')
+        ProjectLog.objects.create(id=idx + 1, ip=get_ip(request), time=datetime.datetime.today(), cmd='delete',
+                                  detail='%s-%s' % (name, person))
+        return HttpResponseRedirect('/project/manage')
+    except Exception as e:
+        print('--delete error is %s' % e)
+        return HttpResponse('--Delete failed!!--')
 
 
 def log_view(request):
-    pass
+    if request.method == 'GET':
+        all_log = ProjectLog.objects.all()
+        dic = {'ver': VERSION, 'data': all_log}
+        return render(request, 'projectlog.html', dic)

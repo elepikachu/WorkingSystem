@@ -65,14 +65,6 @@ body {
     flex-wrap: wrap;
 }
 
-/* 创建两个列 */
-/* 边栏 */
-.side {
-    -ms-flex: 30%; /* IE10 */
-    flex: 30%;
-    background-color: #f1f1f1;
-    padding: 20px;
-}
 
 /* 主要的内容区域 */
 .main {
@@ -80,14 +72,9 @@ body {
     flex: 70%;
     background-color: white;
     padding: 20px;
+    text-align: center;
 }
 
-/* 测试图片 */
-.fakeimg {
-    background-color: #aaa;
-    width: 100%;
-    padding: 20px;
-}
 
 /* 底部 */
 .footer {
@@ -113,43 +100,53 @@ body {
 </style>
 </head>
 <body>
-
+<form action="/project/submit" method="post">
+{% csrf_token %}
 <div class="header">
   <h1>{{ ver }}-提交模式</h1>
   <p>Welcome to elepikachu's tool site</p>
 </div>
 
 <div class="navbar">
-  <a href="#">返回首页</a>
-  <a href="#">管理模式</a>
-  <a href="#">查看日志</a>
-  <a href="/" class="right">返回首页</a>
+  <a href="/project">应用首页</a>
+  <a href="submit">提交模式</a>
+  <a href="manage">管理模式</a>
+  <a href="log">查看日志</a>
+  <a href="/" class="right">返回主页</a>
 </div>
 
 <div class="row">
-  <div class="side">
-      <h2>关于我</h2>
-      <h5>我的照片:</h5>
-      <div class="fakeimg" style="height:200px;">这边插入图像</div>
-      <p>关于我的介绍..</p>
-      <h3>更多内容</h3>
-      <p>我的更多内容</p>
-      <div class="fakeimg" style="height:60px;">这边插入图像</div><br>
-      <div class="fakeimg" style="height:60px;">这边插入图像</div><br>
-      <div class="fakeimg" style="height:60px;">这边插入图像</div>
-  </div>
   <div class="main">
-      <h2>标题</h2>
-      <h5>副标题</h5>
-      <div class="fakeimg" style="height:200px;">图像</div>
-      <p>一些文本..</p>
-      <p>菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！</p>
-      <br>
-      <h2>标题</h2>
-      <h5>副标题</h5>
-      <div class="fakeimg" style="height:200px;">图像</div>
-      <p>一些文本..</p>
-      <p>菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！</p>
+      <h3>请输入您要提交的项目信息</h3>
+      <h3>*****以下内容仅初次提交时需填写*****</h3>
+      <p>
+          您的姓名：
+          <input type="text" name="person" size="10">
+          所在项目组：
+          <input type="text" name="group" size="20">
+          <br />
+      </p>
+      <h3>*****以下内容每次提交均需填写*****</h3>
+      <p>
+          项目名称：
+          <input type="text" name="name" size="30" placeholder="请输入您要完成的项目名称">
+          项目类别：
+          <input type="text" list="itemlist" size="10" name="type">
+              <datalist id="itemlist">
+                  <option>科研项目</option>
+                  <option>商业项目</option>
+                  <option>自我提升</option>
+              </datalist><br /><br />
+          项目起始日期：
+          <input type="date" name="date1" value={{ date1 }} size="30">
+          计划完成日期：
+          <input type="date" name="date2" value={{ date2 }} size="30"><br /><br />
+          项目详细内容：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+          <textarea name="detail" cols="50" rows="3" placeholder="请输入您要完成的项目的详细内容"></textarea><br />
+          <br />
+      </p>
+      <input type="reset" name="res" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="sub" size="5">
   </div>
 </div>
 
@@ -158,6 +155,6 @@ body {
       powered by elepikachu
   </h2>
 </div>
-
+</form>
 </body>
 </html>

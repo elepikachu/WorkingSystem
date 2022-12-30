@@ -11,4 +11,6 @@ urlpatterns = [
     path('submit', views.submit_view),
     path('manage', views.manage_view),
     path('log', views.log_view),
+    path('update_project/<int:project_id>', views.update_project),
+path('delete_project/<int:project_id>', views.delete_project),
     ]

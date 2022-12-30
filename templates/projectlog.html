@@ -65,14 +65,6 @@ body {
     flex-wrap: wrap;
 }
 
-/* 创建两个列 */
-/* 边栏 */
-.side {
-    -ms-flex: 30%; /* IE10 */
-    flex: 30%;
-    background-color: #f1f1f1;
-    padding: 20px;
-}
 
 /* 主要的内容区域 */
 .main {
@@ -80,14 +72,9 @@ body {
     flex: 70%;
     background-color: white;
     padding: 20px;
+    text-align: center;
 }
 
-/* 测试图片 */
-.fakeimg {
-    background-color: #aaa;
-    width: 100%;
-    padding: 20px;
-}
 
 /* 底部 */
 .footer {
@@ -120,36 +107,26 @@ body {
 </div>
 
 <div class="navbar">
-  <a href="#">提交模式</a>
-  <a href="#">管理模式</a>
-  <a href="#">查看日志</a>
-  <a href="/" class="right">返回首页</a>
+  <a href="/project">应用首页</a>
+  <a href="submit">提交模式</a>
+  <a href="manage">管理模式</a>
+  <a href="log">查看日志</a>
+  <a href="/" class="right">返回主页</a>
 </div>
 
 <div class="row">
-  <div class="side">
-      <h2>关于我</h2>
-      <h5>我的照片:</h5>
-      <div class="fakeimg" style="height:200px;">这边插入图像</div>
-      <p>关于我的介绍..</p>
-      <h3>更多内容</h3>
-      <p>我的更多内容</p>
-      <div class="fakeimg" style="height:60px;">这边插入图像</div><br>
-      <div class="fakeimg" style="height:60px;">这边插入图像</div><br>
-      <div class="fakeimg" style="height:60px;">这边插入图像</div>
-  </div>
   <div class="main">
-      <h2>标题</h2>
-      <h5>副标题</h5>
-      <div class="fakeimg" style="height:200px;">图像</div>
-      <p>一些文本..</p>
-      <p>菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！</p>
-      <br>
-      <h2>标题</h2>
-      <h5>副标题</h5>
-      <div class="fakeimg" style="height:200px;">图像</div>
-      <p>一些文本..</p>
-      <p>菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！菜鸟教程，学的不仅是技术，更是梦想！！！</p>
+      <h3>操作日志</h3>
+      <p>序号-日期-ip地址-操作-内容</p>
+      <p>
+          {% for item in data %}
+              {{ item.id }}-
+              {{ item.date }}-
+              {{ item.ip }}-
+              {{ item.cmd }}-
+              {{ item.other }}
+        {%  endfor %}
+      </p>
   </div>
 </div>
 
