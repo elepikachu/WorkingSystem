@@ -98,6 +98,22 @@ body {
     }
 }
 </style>
+<script type="text/javascript">
+    function password() {
+        var passw = prompt("本操作为高危操作，请输入管理员密码后进入，默认密码 666666");
+        if (!passw) {
+            alert("没有输入");
+            return false;
+        }
+        if (passw === "666666") {
+            return true;
+        }
+        else {
+            alert("密码错误，请重新输入");
+            return false;
+        }
+    }
+</script>
 </head>
 <body>
 <form action="/project/manage" method="post">
@@ -118,7 +134,7 @@ body {
 <div class="row">
   <div class="main">
       <h3>项目信息</h3>
-      <input type="submit" name="del" value="批量管理" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="del" onclick="return password()" value="批量删除" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="submit" name="self" value="个人信息管理" size="5"><br /><br />
 
     <table border="1">
@@ -130,7 +146,9 @@ body {
             <th>开始时间</th>
             <th>计划完成</th>
             <th>计划类别</th>
-            <th>完成情况</th>
+            <th>项目进展</th>
+            <th>备注</th>
+            <th>操作</th>
         </tr>
         {% for item in data %}
             <tr>
@@ -141,10 +159,11 @@ body {
                 <td>{{ item.date }}</td>
                 <td>{{ item.enddate }}</td>
                 <td>{{ item.classification }}</td>
-                <td>{{ item.finish }}</td>
+                <td>{{ item.finish }}%</td>
+                <td>{{ item.detail }}</td>
                 <td>
-                    <a href="/project/update/{{ item.id }}">更新</a>
-                    <a href="/project/delete/{{ item.id }}">删除</a>
+                    <a href="/project/update/{{ item.id }}">更新行</a>
+                    <a href="/project/delete/{{ item.id }}">删除行</a>
                 </td>
             </tr>
         {%  endfor %}

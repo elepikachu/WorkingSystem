@@ -99,6 +99,18 @@ body {
     }
 }
 </style>
+    <script type="text/javascript">
+    function confirm() {
+        var cfm = confirm("确认提交么");
+        if (cfm === true) {
+            alert("提交成功！")
+            return true
+        }
+        else {
+            return false;
+        }
+    }
+</script>
 </head>
 <body>
 <form action="/project/submit" method="post">
@@ -154,7 +166,7 @@ body {
           <br />
       </p>
       <input type="reset" name="res" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="submit" name="sub" size="5">
+      <input type="submit" name="sub" size="5" onclick="return confirm()">
   </div>
 </div>
 

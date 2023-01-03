@@ -10,7 +10,7 @@ class Project(models.Model):
     person = models.CharField('完成人', max_length=50, default='')
     classification = models.CharField('项目类别', max_length=20, default='')
     detail = models.CharField('项目备注', max_length=100, default='')
-    finish = models.BooleanField('是否完成', default=False)
+    finish = models.IntegerField('是否完成', default=0)
 
 
 class ProjectLog(models.Model):
