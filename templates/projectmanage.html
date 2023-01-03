@@ -140,11 +140,11 @@ body {
                 <td>{{ item.name }}</td>
                 <td>{{ item.date }}</td>
                 <td>{{ item.enddate }}</td>
-                <td>{{ item.type }}</td>
+                <td>{{ item.classification }}</td>
                 <td>{{ item.finish }}</td>
                 <td>
-                    <a href="/project/update_project/{{ item.id }}">更新</a>
-                    <a href="/project/delete_project/{{ item.id }}">删除</a>
+                    <a href="/project/update/{{ item.id }}">更新</a>
+                    <a href="/project/delete/{{ item.id }}">删除</a>
                 </td>
             </tr>
         {%  endfor %}

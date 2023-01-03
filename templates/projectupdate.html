@@ -20,10 +20,10 @@
         项目名称 <input type="text" value="{{ project.name }}" name="name">
     </p>
     <p>
-        起始时间 <input type="text" value="{{ project.date }}" name="date">
+        起始时间 <input type="text" value="{{ date1 }}" name="date">
     </p>
     <p>
-        结束时间 <input type="text" value="{{ project.enddate }}" name="enddate">
+        结束时间 <input type="text" value="{{ date2 }}" name="enddate">
     </p>
     <p>
         项目分类 <input type="text" value="{{ project.classification }}" name="classification">
@@ -34,6 +34,7 @@
     <p>
         是否完成 <input type="text" value="{{ project.finish }}" name="finish">
     </p>
+    <input type="submit" name="upd" size="5">
 </form>
 </body>
 </html>

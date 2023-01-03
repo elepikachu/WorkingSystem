@@ -16,6 +16,6 @@ class Project(models.Model):
 class ProjectLog(models.Model):
     id = models.IntegerField('操作编号', primary_key=True)
     ip = models.CharField('操作ip', max_length=50, default='')
-    date = models.DateField('操作时间')
+    date = models.DateTimeField('操作时间')
     cmd = models.CharField('操作类型', max_length=50, default='')
     other = models.CharField('备注', max_length=70, default='')

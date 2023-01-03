@@ -70,7 +70,8 @@ body {
 .main {
     -ms-flex: 70%; /* IE10 */
     flex: 70%;
-    background-color: white;
+    background-image: url({% static 'images/kuailong.png' %});
+    background-position: top;
     padding: 20px;
     text-align: center;
 }
@@ -120,10 +121,17 @@ body {
       <h3>请输入您要提交的项目信息</h3>
       <h3>*****以下内容仅初次提交时需填写*****</h3>
       <p>
-          您的姓名：
+          {% if psn == '' %}
+          您的姓名s：
           <input type="text" name="person" size="10">
-          所在项目组：
+          所在项目组s：
           <input type="text" name="group" size="20">
+          {% else %}
+          您的姓名：
+          <input type="text" name="person" value="{{ psn }}" size="10">
+          所在项目组：
+          <input type="text" name="group" value="{{ grp }}" size="20">
+          {% endif %}
           <br />
       </p>
       <h3>*****以下内容每次提交均需填写*****</h3>
@@ -131,16 +139,16 @@ body {
           项目名称：
           <input type="text" name="name" size="30" placeholder="请输入您要完成的项目名称">
           项目类别：
-          <input type="text" list="itemlist" size="10" name="type">
+          <input type="text" list="itemlist" size="10" name="classification">
               <datalist id="itemlist">
                   <option>科研项目</option>
                   <option>商业项目</option>
                   <option>自我提升</option>
               </datalist><br /><br />
           项目起始日期：
-          <input type="date" name="date1" value={{ date1 }} size="30">
+          <input type="date" name="date" value="{{ date1 }}" size="30">
           计划完成日期：
-          <input type="date" name="date2" value={{ date2 }} size="30"><br /><br />
+          <input type="date" name="enddate" value="{{ date2 }}" size="30"><br /><br />
           项目详细内容：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
           <textarea name="detail" cols="50" rows="3" placeholder="请输入您要完成的项目的详细内容"></textarea><br />
           <br />
