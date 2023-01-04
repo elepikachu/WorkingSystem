@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from .models import Project, ProjectLog
@@ -59,23 +60,29 @@ def submit_view(request):
             else:
                 idx = 0
             ProjectLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='insert',
-                                      other='%s-%s-%s-%d%%' % (person, name, detail, 0))
-            obj = HttpResponseRedirect('/project/manage')
+                                      other='%s-%s-%s-%s%%' % (person, name, detail, '0'))
+            res = HttpResponseRedirect('/project/manage?page=1')
             person = json.dumps(person)
             group = json.dumps(group)
-            obj.set_cookie(key='person', value=person, max_age=3600 * 24 * 30)
-            obj.set_cookie(key='group', value=group, max_age=3600 * 24 * 30)
-            return obj
+            res.set_cookie(key='person', value=person, max_age=3600 * 24 * 30)
+            res.set_cookie(key='group', value=group, max_age=3600 * 24 * 30)
+            return res
 
 
 def manage_view(request):
     if request.method == 'GET':
         all_data = Project.objects.all()
-        dic = {'ver': VERSION, 'data': all_data}
-        return render(request, 'project/projectmanage.html', dic)
+        all_data = all_data[::-1]
+        page_num = request.GET.get('page', 1)
+        paginator = Paginator(all_data, 30)
+        c_page = paginator.page(int(page_num))
+        ver = VERSION
+        return render(request, 'project/projectmanage.html', locals())
     elif request.method == 'POST':
         if 'del' in request.POST:
             return HttpResponseRedirect('/project/batch')
+        if 'self' in request.POST:
+            return HttpResponseRedirect('/project/personal')
 
 
 def update_project(request, project_id):
@@ -91,30 +98,33 @@ def update_project(request, project_id):
         ver = VERSION
         return render(request, 'project/projectupdate.html', locals())
     elif request.method == 'POST':
-        name = request.POST['name']
-        person = request.POST['person']
-        group = request.POST['group']
-        date = request.POST['date']
-        enddate = request.POST['enddate']
-        detail = request.POST['detail']
-        classification = request.POST['classification']
-        finish = request.POST['finish']
-        project.name = name
-        project.person = person
-        project.group = group
-        project.date = date
-        project.enddate = enddate
-        project.detail = detail
-        project.classification = classification
-        project.finish = finish
-        project.save()
-        if ProjectLog.objects.exists():
-            idx = ProjectLog.objects.latest('id').id
-        else:
-            idx = 0
-        ProjectLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='update',
-                                  other='%s-%s-%s-%d%%' % (person, name, detail, finish))
-        return HttpResponseRedirect('/project/manage')
+        if "upd" in request.POST:
+            name = request.POST['name']
+            person = request.POST['person']
+            group = request.POST['group']
+            date = request.POST['date']
+            enddate = request.POST['enddate']
+            detail = request.POST['detail']
+            classification = request.POST['classification']
+            finish = request.POST['finish']
+            project.name = name
+            project.person = person
+            project.group = group
+            project.date = date
+            project.enddate = enddate
+            project.detail = detail
+            project.classification = classification
+            project.finish = finish
+            project.save()
+            if ProjectLog.objects.exists():
+                idx = ProjectLog.objects.latest('id').id
+            else:
+                idx = 0
+            ProjectLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='update',
+                                      other='%s-%s-%s-%s%%' % (person, name, detail, finish))
+            return HttpResponseRedirect('/project/manage?page=1')
+        elif "back" in request.POST:
+            return HttpResponseRedirect('/project/manage?page=1')
 
 
 def delete_project(request, project_id):
@@ -129,7 +139,7 @@ def delete_project(request, project_id):
             idx = 0
         ProjectLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='delete',
                                   other='%s-%s' % (name, person))
-        return HttpResponseRedirect('/project/manage')
+        return HttpResponseRedirect('/project/manage?page=1')
     except Exception as e:
         print('--delete error is %s' % e)
         return HttpResponse('--Delete failed!!--')
@@ -145,43 +155,72 @@ def batch_view(request):
         return render(request, 'project/projectdelete.html', locals())
     elif request.method == 'POST':
         if 'delall' in request.POST:
-            all = Project.objects.all()
-            all.delete()
+            all_data = Project.objects.all()
+            all_data.delete()
             if ProjectLog.objects.exists():
                 idx = ProjectLog.objects.latest('id').id
             else:
                 idx = 0
             ProjectLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='delete',
                                       other='ALL')
+            return HttpResponseRedirect('/project/manage?page=1')
         elif 'deldate' in request.POST:
             date1 = request.POST['date1']
             date2 = request.POST['date2']
-            all = Project.objects.filter(date__gte=date1, date__lte=date2)
-            all.delete()
+            all_data = Project.objects.filter(date__gte=date1, date__lte=date2)
+            all_data.delete()
             if ProjectLog.objects.exists():
                 idx = ProjectLog.objects.latest('id').id
             else:
                 idx = 0
             ProjectLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='delete',
                                       other='all in %s-%s' % (date1, date2))
+            return HttpResponseRedirect('/project/manage?page=1')
         elif 'delend' in request.POST:
             date1 = request.POST['date1']
             date2 = request.POST['date2']
-            all = Project.objects.filter(enddate__gte=date1, enddate__lte=date2)
-            all.delete()
+            all_data = Project.objects.filter(enddate__gte=date1, enddate__lte=date2)
+            all_data.delete()
             if ProjectLog.objects.exists():
                 idx = ProjectLog.objects.latest('id').id
             else:
                 idx = 0
             ProjectLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='delete',
                                       other='all in %s-%s' % (date1, date2))
+            return HttpResponseRedirect('/project/manage?page=1')
 
 
-
+def personal_view(request):
+    if request.method == 'GET':
+        ver = VERSION
+        if request.COOKIES.get('person', '') != '':
+            psn = request.COOKIES.get('person', '')
+            psn = json.loads(psn)
+            all_data = Project.objects.filter(person__exact=psn)
+            all_data = all_data[::-1]
+            return render(request, 'project/projectself.html', locals())
+        else:
+            namebox = []
+            all_data = Project.objects.all()
+            for item in all_data:
+                if item.person not in namebox:
+                    namebox.append(item.person)
+            return render(request, 'project/projectperson.html', locals())
+    if request.method == 'POST':
+        if 'ret' in request.POST:
+            res = HttpResponseRedirect('/project/personal')
+            res.delete_cookie('person')
+            return res
+        if 'nm' in request.POST:
+            res = HttpResponseRedirect('/project/personal')
+            person = json.dumps(request.POST['nam'])
+            res.set_cookie(key='person', value=person, max_age=3600 * 24 * 30)
+            return res
 
 
 def log_view(request):
     if request.method == 'GET':
         all_log = ProjectLog.objects.all()
+        all_log = all_log[::-1]
         dic = {'ver': VERSION, 'data': all_log}
         return render(request, 'project/projectlog.html', dic)

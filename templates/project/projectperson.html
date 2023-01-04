@@ -2,7 +2,7 @@
 {% load static %}
 <html>
 <head>
-<title>{{ ver }}-查看日志</title>
+<title>{{ ver }}-批量删除</title>
 <link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -65,16 +65,16 @@ body {
     flex-wrap: wrap;
 }
 
-
 /* 主要的内容区域 */
 .main {
     -ms-flex: 70%; /* IE10 */
     flex: 70%;
-    background-color: white;
-    padding: 20px;
     text-align: center;
+    background-image: url({% static 'images/babara.jpeg' %});
+    background-position: top;
+    height: 400px;
+    padding: 20px;
 }
-
 
 /* 底部 */
 .footer {
@@ -100,33 +100,29 @@ body {
 </style>
 </head>
 <body>
-
+<form action="/project/personal" method="post">
+{% csrf_token %}
 <div class="header">
-  <h1>{{ ver }}-查看日志</h1>
+  <h1>{{ ver }}-个人信息管理</h1>
   <p>Welcome to elepikachu's tool site</p>
 </div>
 
 <div class="navbar">
   <a href="/project">应用首页</a>
-  <a href="submit">提交模式</a>
-  <a href="manage?page=1">管理模式</a>
-  <a href="log">查看日志</a>
+  <a href="manage?page=1">返回管理模式</a>
   <a href="/" class="right">返回主页</a>
 </div>
 
 <div class="row">
   <div class="main">
-      <h3>操作日志</h3>
-      <p>序号-日期-ip地址-操作-内容</p>
-      <p>
-          {% for item in data %}
-              {{ item.id }}-
-              {{ item.date }}-
-              {{ item.ip }}-
-              {{ item.cmd }}-
-              {{ item.other }} <br />
-        {%  endfor %}
-      </p>
+  <br /><br />
+      <h3>请选择您的姓名</h3>
+      <select name="nam">
+          {% for item in namebox %}
+              <option>{{ item }}</option>
+          {% endfor %}
+      </select><br /><br /><br />
+  <input type="submit" name="nm" size="5">
   </div>
 </div>
 

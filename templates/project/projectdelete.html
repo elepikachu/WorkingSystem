@@ -99,6 +99,7 @@ body {
 </head>
 <body>
 <form action="/project/batch" method="post">
+{% csrf_token %}
 <div class="header">
   <h1>{{ ver }}-批量删除</h1>
   <p>Welcome to elepikachu's tool site</p>
@@ -106,7 +107,7 @@ body {
 
 <div class="navbar">
   <a href="/project">应用首页</a>
-  <a href="manage">返回管理模式</a>
+  <a href="manage?page=1">返回管理模式</a>
   <a href="/" class="right">返回主页</a>
 </div>
 

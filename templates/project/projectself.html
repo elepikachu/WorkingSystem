@@ -2,7 +2,7 @@
 {% load static %}
 <html>
 <head>
-<title>{{ ver }}-管理模式</title>
+<title>{{ ver }}-个人信息管理</title>
 <link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -65,16 +65,15 @@ body {
     flex-wrap: wrap;
 }
 
-
 /* 主要的内容区域 */
 .main {
     -ms-flex: 70%; /* IE10 */
     flex: 70%;
-    background-color: white;
-    padding: 20px;
     text-align: center;
+    background-image: url({% static 'images/babara.jpeg' %});
+    background-position: top;
+    padding: 20px;
 }
-
 
 /* 底部 */
 .footer {
@@ -98,46 +97,25 @@ body {
     }
 }
 </style>
-<script type="text/javascript">
-    function password() {
-        var passw = prompt("本操作为高危操作，请输入管理员密码后进入，默认密码 666666");
-        if (!passw) {
-            alert("没有输入");
-            return false;
-        }
-        if (passw === "666666") {
-            return true;
-        }
-        else {
-            alert("密码错误，请重新输入");
-            return false;
-        }
-    }
-</script>
 </head>
 <body>
-<form action="/project/manage" method="post">
+<form action="/project/personal" method="post">
 {% csrf_token %}
 <div class="header">
-  <h1>{{ ver }}-管理模式</h1>
+  <h1>{{ ver }}-个人信息管理</h1>
   <p>Welcome to elepikachu's tool site</p>
 </div>
 
 <div class="navbar">
   <a href="/project">应用首页</a>
-  <a href="submit">提交模式</a>
-  <a href="manage?page=1">管理模式</a>
-  <a href="log">查看日志</a>
+  <a href="manage?page=1">返回管理模式</a>
   <a href="/" class="right">返回主页</a>
 </div>
 
 <div class="row">
   <div class="main">
-      <h3>项目信息</h3>
-      <input type="submit" name="del" onclick="return password()" value="批量删除" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="submit" name="self" value="个人信息管理" size="5"><br /><br />
-
-    <table border="1">
+      <h3>欢迎，{{ psn }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="ret" value="我不是{{ psn }}?" size="5"></h3>
+<table border="1">
         <tr>
             <th>id</th>
             <th>完成人</th>
@@ -150,7 +128,7 @@ body {
             <th>备注</th>
             <th>操作</th>
         </tr>
-        {% for item in c_page %}
+        {% for item in all_data %}
             <tr>
                 <td>{{ item.id }}</td>
                 <td>{{ item.person }}</td>
@@ -168,25 +146,6 @@ body {
             </tr>
         {%  endfor %}
     </table>
-  {% if c_page.has_previous %}
-      <a href="/project/manage?page={{ c_page.previous_page_number }}">上一页</a>
-  {% else %}
-      上一页
-  {% endif %}
-
-  {% for p_num in paginator.page_range %}
-      {% if p_num == c_page.number %}
-          {{ p_num }}
-       {% else %}
-          <a href="/project/manage?page={{ p_num }}">{{ p_num }}</a>
-      {% endif %}
-  {% endfor %}
-
-  {% if c_page.has_next %}
-      <a href="/project/manage?page={{ c_page.next_page_number }}">下一页</a>
-  {% else %}
-      下一页
-  {% endif %}
   </div>
 </div>
 
@@ -195,6 +154,6 @@ body {
       powered by elepikachu
   </h2>
 </div>
-</form>
+
 </body>
 </html>
