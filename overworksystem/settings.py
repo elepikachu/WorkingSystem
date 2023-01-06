@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'project',
     'fuelcell',
     'music',
+    'buyitem'
 ]
 
 MIDDLEWARE = [

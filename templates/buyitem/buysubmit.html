@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+<title>{{ ver }}-提交模式</title>
+<link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+/* body 样式 */
+body {
+    font-family: Arial;
+    margin: 0;
+}
+
+/* 标题 */
+.header {
+    padding: 80px;
+    text-align: center;
+    background: #1abc9c;
+    color: white;
+}
+
+/* 标题字体加大 */
+.header h1 {
+    font-size: 40px;
+}
+
+/* 导航 */
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+}
+
+/* 导航栏样式 */
+.navbar a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+/* 右侧链接*/
+.navbar a.right {
+    float: right;
+}
+
+/* 鼠标移动到链接的颜色 */
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* 列容器 */
+.row {
+    display: -ms-flexbox; /* IE10 */
+    display: flex;
+    -ms-flex-wrap: wrap; /* IE10 */
+    flex-wrap: wrap;
+}
+
+
+/* 主要的内容区域 */
+.main {
+    -ms-flex: 70%; /* IE10 */
+    flex: 70%;
+    background-image: url({% static 'images/kuailong.png' %});
+    background-position: top;
+    padding: 20px;
+    text-align: center;
+}
+
+
+/* 底部 */
+.footer {
+    padding: 20px;
+    text-align: center;
+    background: #ddd;
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 700px 时, 让两栏上下堆叠显示 */
+@media screen and (max-width: 700px) {
+    .row {
+        flex-direction: column;
+    }
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 400px 时, 让导航栏目上下堆叠显示 */
+@media screen and (max-width: 400px) {
+    .navbar a {
+        float: none;
+        width: 100%;
+    }
+}
+</style>
+<script type="text/javascript">
+    function confirm_submit() {
+        let cfm = confirm("确认提交信息么");
+        if (cfm === true) {
+            alert("提交成功！");
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+</head>
+<body>
+<form action="/project/submit" method="post">
+{% csrf_token %}
+<div class="header">
+  <h1>{{ ver }}-提交模式</h1>
+  <p>Welcome to elepikachu's tool site</p>
+</div>
+
+<div class="navbar">
+  <a href="/project">应用首页</a>
+  <a href="submit">提交模式</a>
+  <a href="manage?page=1">管理模式</a>
+  <a href="log">查看日志</a>
+  <a href="/" class="right">返回主页</a>
+</div>
+
+<div class="row">
+  <div class="main">
+      <h3>请输入您要提交的项目信息</h3>
+      <h3>*****以下内容仅初次提交时需填写*****</h3>
+      <p>
+          {% if psn == '' %}
+          您的姓名s：
+          <input type="text" name="person" size="10">
+          所在项目组s：
+          <input type="text" name="group" size="20">
+          {% else %}
+          您的姓名：
+          <input type="text" name="person" value="{{ psn }}" size="10">
+          所在项目组：
+          <input type="text" name="group" value="{{ grp }}" size="20">
+          {% endif %}
+          <br />
+      </p>
+      <h3>*****以下内容每次提交均需填写*****</h3>
+      <p>
+          项目名称：
+          <input type="text" name="name" size="30" placeholder="请输入您要完成的项目名称">
+          项目类别：
+          <input type="text" list="itemlist" size="10" name="classification">
+              <datalist id="itemlist">
+                  <option>科研项目</option>
+                  <option>商业项目</option>
+                  <option>自我提升</option>
+                  <option>其他</option>
+              </datalist><br /><br />
+          项目起始日期：
+          <input type="date" name="date" value="{{ date1 }}" size="30">
+          计划完成日期：
+          <input type="date" name="enddate" value="{{ date2 }}" size="30"><br /><br />
+          项目详细内容：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+          <textarea name="detail" cols="50" rows="3" placeholder="请输入您要完成的项目的详细内容"></textarea><br />
+          <br />
+      </p>
+      <input type="reset" name="res" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" onclick="return confirm_submit()" name="sub" size="5">
+  </div>
+</div>
+
+<div class="footer">
+  <h2>
+      powered by elepikachu
+  </h2>
+</div>
+</form>
+</body>
+</html>

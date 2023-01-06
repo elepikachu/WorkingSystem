@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+<title>{{ ver }}-管理模式</title>
+<link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+/* body 样式 */
+body {
+    font-family: Arial;
+    margin: 0;
+}
+
+/* 标题 */
+.header {
+    padding: 80px;
+    text-align: center;
+    background: #1abc9c;
+    color: white;
+}
+
+/* 标题字体加大 */
+.header h1 {
+    font-size: 40px;
+}
+
+/* 导航 */
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+}
+
+/* 导航栏样式 */
+.navbar a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+/* 右侧链接*/
+.navbar a.right {
+    float: right;
+}
+
+/* 鼠标移动到链接的颜色 */
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* 列容器 */
+.row {
+    display: -ms-flexbox; /* IE10 */
+    display: flex;
+    -ms-flex-wrap: wrap; /* IE10 */
+    flex-wrap: wrap;
+}
+
+
+/* 主要的内容区域 */
+.main {
+    -ms-flex: 70%; /* IE10 */
+    flex: 70%;
+    background-color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+
+/* 底部 */
+.footer {
+    padding: 20px;
+    text-align: center;
+    background: #ddd;
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 700px 时, 让两栏上下堆叠显示 */
+@media screen and (max-width: 700px) {
+    .row {
+        flex-direction: column;
+    }
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 400px 时, 让导航栏目上下堆叠显示 */
+@media screen and (max-width: 400px) {
+    .navbar a {
+        float: none;
+        width: 100%;
+    }
+}
+</style>
+<script type="text/javascript">
+    function password() {
+        var passw = prompt("本操作为高危操作，请输入管理员密码后进入，默认密码 666666");
+        if (!passw) {
+            alert("没有输入");
+            return false;
+        }
+        if (passw === "666666") {
+            return true;
+        }
+        else {
+            alert("密码错误，请重新输入");
+            return false;
+        }
+    }
+</script>
+</head>
+<body>
+<form action="/project/manage" method="post">
+{% csrf_token %}
+<div class="header">
+  <h1>{{ ver }}-管理模式</h1>
+  <p>Welcome to elepikachu's tool site</p>
+</div>
+
+<div class="navbar">
+  <a href="/project">应用首页</a>
+  <a href="submit">提交模式</a>
+  <a href="manage?page=1">管理模式</a>
+  <a href="log">查看日志</a>
+  <a href="/" class="right">返回主页</a>
+</div>
+
+<div class="row">
+  <div class="main">
+      <h3>项目信息</h3>
+      在过滤和打印表格之前请先选好开始时间和项目组名称哦： &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目开始时间范围：
+      <input type="date" name="date1" value="{{ date1 }}" size="30"> ---
+      <input type="date" name="date2" value="{{ date2 }}" size="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      项目组：<select name="grp">
+          {% for item in groupbox %}
+              <option>{{ item }}</option>
+          {% endfor %}
+      </select><br /><br />
+      <input type="submit" name="fit" value="条件过滤" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="unfit" value="取消过滤" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="pri" value="打印表格" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="del" onclick="return password()" value="批量删除" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="self" value="个人信息管理" size="5"><br /><br />
+
+    <table border="1">
+        <tr>
+            <th>id</th>
+            <th>完成人</th>
+            <th>项目组</th>
+            <th>项目名称</th>
+            <th>开始时间</th>
+            <th>计划完成</th>
+            <th>计划类别</th>
+            <th>项目进展</th>
+            <th>备注</th>
+            <th>操作</th>
+        </tr>
+        {% for item in c_page %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.person }}</td>
+                <td>{{ item.group }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.date }}</td>
+                <td>{{ item.enddate }}</td>
+                <td>{{ item.classification }}</td>
+                <td>{{ item.finish }}%</td>
+                <td>{{ item.detail }}</td>
+                <td>
+                    <a href="/project/update/{{ item.id }}">更新行</a>
+                    <a href="/project/delete/{{ item.id }}">删除行</a>
+                </td>
+            </tr>
+        {%  endfor %}
+    </table>
+  {% if c_page.has_previous %}
+      <a href="/project/manage?page={{ c_page.previous_page_number }}">上一页</a>
+  {% else %}
+      上一页
+  {% endif %}
+
+  {% for p_num in paginator.page_range %}
+      {% if p_num == c_page.number %}
+          {{ p_num }}
+       {% else %}
+          <a href="/project/manage?page={{ p_num }}">{{ p_num }}</a>
+      {% endif %}
+  {% endfor %}
+
+  {% if c_page.has_next %}
+      <a href="/project/manage?page={{ c_page.next_page_number }}">下一页</a>
+  {% else %}
+      下一页
+  {% endif %}
+  </div>
+</div>
+
+<div class="footer">
+  <h2>
+      powered by elepikachu
+  </h2>
+</div>
+</form>
+</body>
+</html>

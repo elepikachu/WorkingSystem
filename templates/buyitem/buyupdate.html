@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>项目修改</title>
+</head>
+<body>
+<form action="/project/update/{{ project.id }}" method="post">
+    {% csrf_token %}
+    <p>
+        idx <input type="text" value="{{ project.id }}" disabled="disabled">
+    </p>
+    <p>
+        姓名 <input type="text" value="{{ project.person }}" name="person">
+    </p>
+    <p>
+        项目组 <input type="text" value="{{ project.group }}" name="group">
+    </p>
+    <p>
+        项目名称 <input type="text" value="{{ project.name }}" name="name">
+    </p>
+    <p>
+        起始时间 <input type="text" value="{{ date1 }}" name="date">
+    </p>
+    <p>
+        结束时间 <input type="text" value="{{ date2 }}" name="enddate">
+    </p>
+    <p>
+        项目分类 <input type="text" value="{{ project.classification }}" name="classification">
+    </p>
+    <p>
+        项目细节 <input type="text" value="{{ project.detail }}" name="detail">
+    </p>
+    <p>
+        是否完成 <input type="text" value="{{ project.finish }}" name="finish">
+    </p>
+    <input type="submit" name="upd" size="5">
+    <input type="submit" value="返回" name="back" size="5">
+</form>
+</body>
+</html>
