@@ -25,5 +25,6 @@ urlpatterns = [
     path('info', views.info_view),
     path('food', views.food_view),
     path('project/', include('project.urls')),
-    path('fuelcell/', include('fuelcell.urls'))
+    path('fuelcell/', include('fuelcell.urls')),
+    path('music/', include('music.urls'))
 ]
