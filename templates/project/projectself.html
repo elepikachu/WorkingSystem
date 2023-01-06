@@ -114,7 +114,10 @@ body {
 
 <div class="row">
   <div class="main">
-      <h3>欢迎，{{ psn }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="ret" value="我不是{{ psn }}?" size="5"></h3>
+      <h3>欢迎，{{ psn }}!&nbsp;您当前共有&nbsp;{{ length }}&nbsp;个项目未完成&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="ret" value="我不是{{ psn }}?" size="5"></h3>
+      <input type="submit" name="prt" value="打印表格" size="5">
+      <h5>未完成项目</h5>
 <table border="1">
         <tr>
             <th>id</th>
@@ -128,7 +131,39 @@ body {
             <th>备注</th>
             <th>操作</th>
         </tr>
-        {% for item in all_data %}
+        {% for item in unfinished %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.person }}</td>
+                <td>{{ item.group }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.date }}</td>
+                <td>{{ item.enddate }}</td>
+                <td>{{ item.classification }}</td>
+                <td>{{ item.finish }}%</td>
+                <td>{{ item.detail }}</td>
+                <td>
+                    <a href="/project/update/{{ item.id }}">更新行</a>
+                    <a href="/project/delete/{{ item.id }}">删除行</a>
+                </td>
+            </tr>
+        {%  endfor %}
+    </table>
+  <h5>已完成项目</h5>
+  <table border="1">
+        <tr>
+            <th>id</th>
+            <th>完成人</th>
+            <th>项目组</th>
+            <th>项目名称</th>
+            <th>开始时间</th>
+            <th>计划完成</th>
+            <th>计划类别</th>
+            <th>项目进展</th>
+            <th>备注</th>
+            <th>操作</th>
+        </tr>
+        {% for item in finished %}
             <tr>
                 <td>{{ item.id }}</td>
                 <td>{{ item.person }}</td>

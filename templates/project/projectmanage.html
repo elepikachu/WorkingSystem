@@ -134,6 +134,17 @@ body {
 <div class="row">
   <div class="main">
       <h3>项目信息</h3>
+      在过滤和打印表格之前请先选好开始时间和项目组名称哦： &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目开始时间范围：
+      <input type="date" name="date1" value="{{ date1 }}" size="30"> ---
+      <input type="date" name="date2" value="{{ date2 }}" size="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      项目组：<select name="grp">
+          {% for item in groupbox %}
+              <option>{{ item }}</option>
+          {% endfor %}
+      </select><br /><br />
+      <input type="submit" name="fit" value="条件过滤" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="unfit" value="取消过滤" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="pri" value="打印表格" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="submit" name="del" onclick="return password()" value="批量删除" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="submit" name="self" value="个人信息管理" size="5"><br /><br />
 
