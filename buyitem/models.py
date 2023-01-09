@@ -6,16 +6,17 @@ from django.db import models
 
 class Item(models.Model):
     id = models.IntegerField('编号', primary_key=True)
-    name = models.CharField('姓名', max_length=50, default='')
-    group = models.CharField('单位全称', max_length=50, default='')
-    phone = models.CharField('联系电话', max_length=50, default='')
-    num = models.CharField('课题编号', max_length=50, default='')
     good = models.CharField('商品名称', max_length=50, default='')
     brand = models.CharField('品牌型号', max_length=50, default='')
+    unit = models.CharField('单位', max_length=5, default=0)
     quantity = models.IntegerField('数量', default=0)
-    unit = models.IntegerField('单位', default=0)
+    name = models.CharField('姓名', max_length=50, default='')
+    phone = models.CharField('联系电话', max_length=50, default='')
+    num = models.CharField('课题编号', max_length=50, default='')
     info = models.CharField('采购说明', max_length=20, default='')
     detail = models.CharField('商品编号', max_length=100, default='')
+    group = models.CharField('单位全称', max_length=50, default='')
+    date = models.DateField('提交日期')
     finish = models.BooleanField('是否完成', default=0)
 
 

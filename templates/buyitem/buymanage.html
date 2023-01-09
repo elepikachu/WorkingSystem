@@ -116,7 +116,7 @@ body {
 </script>
 </head>
 <body>
-<form action="/project/manage" method="post">
+<form action="/buyitem/manage" method="post">
 {% csrf_token %}
 <div class="header">
   <h1>{{ ver }}-管理模式</h1>
@@ -124,7 +124,7 @@ body {
 </div>
 
 <div class="navbar">
-  <a href="/project">应用首页</a>
+  <a href="/buyitem">应用首页</a>
   <a href="submit">提交模式</a>
   <a href="manage?page=1">管理模式</a>
   <a href="log">查看日志</a>
@@ -133,14 +133,19 @@ body {
 
 <div class="row">
   <div class="main">
-      <h3>项目信息</h3>
-      在过滤和打印表格之前请先选好开始时间和项目组名称哦： &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;项目开始时间范围：
+      <h3>物资采购情况 -- {{ slo }}</h3>
+      在过滤和打印表格之前请先选好条件哦： &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;提交时间范围：
       <input type="date" name="date1" value="{{ date1 }}" size="30"> ---
       <input type="date" name="date2" value="{{ date2 }}" size="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       项目组：<select name="grp">
           {% for item in groupbox %}
               <option>{{ item }}</option>
           {% endfor %}
+      </select>
+      完成情况：<select name="fin">
+              <option>未完成</option>
+      <option>已完成</option>
+      <option>全部</option>
       </select><br /><br />
       <input type="submit" name="fit" value="条件过滤" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="submit" name="unfit" value="取消过滤" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -151,30 +156,38 @@ body {
     <table border="1">
         <tr>
             <th>id</th>
-            <th>完成人</th>
-            <th>项目组</th>
-            <th>项目名称</th>
-            <th>开始时间</th>
-            <th>计划完成</th>
-            <th>计划类别</th>
-            <th>项目进展</th>
-            <th>备注</th>
+            <th>商品名称</th>
+            <th>品牌型号</th>
+            <th>单位</th>
+            <th>数量</th>
+            <th>购买人</th>
+            <th>联系电话</th>
+            <th>课题编号</th>
+            <th>采购说明</th>
+            <th>商品编号</th>
+            <th>采购单位</th>
+            <th>提交日期</th>
+            <th>进展</th>
             <th>操作</th>
         </tr>
         {% for item in c_page %}
             <tr>
                 <td>{{ item.id }}</td>
-                <td>{{ item.person }}</td>
-                <td>{{ item.group }}</td>
+                <td>{{ item.good }}</td>
+                <td>{{ item.brand }}</td>
+                <td>{{ item.unit }}</td>
+                <td>{{ item.quantity }}</td>
                 <td>{{ item.name }}</td>
-                <td>{{ item.date }}</td>
-                <td>{{ item.enddate }}</td>
-                <td>{{ item.classification }}</td>
-                <td>{{ item.finish }}%</td>
+                <td>{{ item.phone }}</td>
+                <td>{{ item.num }}</td>
+                <td>{{ item.info }}</td>
                 <td>{{ item.detail }}</td>
+                <td>{{ item.group }}</td>
+                <td>{{ item.date }}</td>
+                <td>{{ item.finish }}</td>
                 <td>
-                    <a href="/project/update/{{ item.id }}">更新行</a>
-                    <a href="/project/delete/{{ item.id }}">删除行</a>
+                    <a href="/buyitem/update/{{ item.id }}">更新行</a>
+                    <a href="/buyitem/delete/{{ item.id }}">删除行</a>
                 </td>
             </tr>
         {%  endfor %}

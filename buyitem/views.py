@@ -55,13 +55,13 @@ def submit_view(request):
             grp = ''
             tel = ''
             num = ''
-        dic = {'ver': VERSION, 'psn': psn, 'grp': grp, 'tel':tel, 'num':num}
+        dic = {'ver': VERSION, 'psn': psn, 'grp': grp, 'tel': tel, 'num': num}
         return render(request, 'buyitem/buysubmit.html', dic)
     elif request.method == 'POST':
         if 'sub' in request.POST:
             name = request.POST['name']
             group = request.POST['group']
-            tel = request.POST['tel']
+            tel = request.POST['phone']
             num = request.POST['num']
             good = request.POST['good']
             brand = request.POST['brand']
@@ -73,8 +73,8 @@ def submit_view(request):
                 id = Item.objects.latest('id').id + 1
             else:
                 id = 1
-            Item.objects.create(id=id, name=name, tel=tel, group=group, num=num, unit=unit,
-                                detail=detail, quantity=quantity, brand=brand, info=info, finish=0)
+            Item.objects.create(id=id, name=name, phone=tel, group=group, num=num, unit=unit, date=datetime.datetime.today(),
+                                detail=detail, quantity=quantity, brand=brand, info=info, finish=0, good=good)
             if ItemLog.objects.exists():
                 idx = ItemLog.objects.latest('id').id
             else:
@@ -100,14 +100,25 @@ def submit_view(request):
 # -------------------------------------------------------------
 def manage_view(request):
     if request.method == 'GET':
-        if 'num' in request.GET:
-            if request.GET['grp'] == "全部":
-                all_data = Item.objects.filter(num__exact=request.GET['num'])
+        if 'grp' in request.GET:
+            if request.GET['grp'] == "全部" and request.GET['fin'] == 2:
+                all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'])
+            elif request.GET['fin'] == 2:
+                all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], group__exact=request.GET['grp'])
+            elif request.GET['grp'] == "全部":
+                all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], finish__exact=request.GET['fin'])
             else:
-                all_data = Item.objects.filter(num__exact=request.GET['num'], group__exact=request.GET['grp'])
+                all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], finish__exact=request.GET['fin'], group__exact=request.GET['grp'])
+            if request.GET['grp'] == 0:
+                slo = "未完成"
+            elif request.GET['grp'] == 1:
+                slo = "已完成"
+            else:
+                slo = ""
         else:
-            all_data = Item.objects.all()
+            all_data = Item.objects.filter(finish__exact=False)
             all_data = all_data[::-1]
+            slo = "未完成"
         page_num = request.GET.get('page', 1)
         paginator = Paginator(all_data, 30)
         c_page = paginator.page(int(page_num))
@@ -127,22 +138,45 @@ def manage_view(request):
         if 'self' in request.POST:
             return HttpResponseRedirect('/buyitem/personal')
         if 'pri' in request.POST:
-            if request.POST['grp'] == "全部":
-                all_data = Item.objects.filter(num__exact=request.GET['num'])
-                name = f'项目完成情况.xlsx'
+            if request.POST['grp'] == "全部" and request.POST['fin'] == "全部":
+                all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'])
+                name = f'物资采购情况.xlsx'
+            elif request.POST['fin'] == "全部":
+                all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
+                                                  group__exact=request.POST['grp'])
+                name = f'%s物资采购情况.xlsx' % request.POST['grp']
+            elif request.POST['grp'] == "全部":
+                if request.POST['fin'] == "未完成":
+                    fin = 0
+                elif request.POST['fin'] == "已完成":
+                    fin = 1
+                all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
+                                               finish__exact=fin)
+                name = f'%s物资采购情况.xlsx' % request.POST['fin']
             else:
-                all_data = Item.objects.filter(num__exact=request.GET['num'], group__exact=request.GET['grp'])
-                name = f'%s项目完成情况.xlsx' % request.POST['grp']
-            #all_data = all_data[::-1]
+                if request.POST['fin'] == "未完成":
+                    fin = 0
+                elif request.POST['fin'] == "已完成":
+                    fin = 1
+                all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
+                                               finish__exact=fin, group__exact=request.POST['grp'])
+                name = f'%s%s物资采购情况.xlsx' % (request.POST['grp'], request.POST['fin'])
             data_list = all_data.values_list()
             response = create_excel(data_list, name)
             return response
         if 'unfit' in request.POST:
             return HttpResponseRedirect('/buyitem/manage?page=1')
         if 'fit' in request.POST:
-            num = request.POST['num']
+            st = request.POST['date1']
+            et = request.POST['date2']
             grp = request.POST['grp']
-            return HttpResponseRedirect('/buyitem/manage?page=1&num=%s&grp=%s' % (num, grp))
+            if request.POST['fin'] == "全部":
+                fin = 2
+            elif request.POST['fin'] == "未完成":
+                fin = 0
+            elif request.POST['fin'] == "已完成":
+                fin = 1
+            return HttpResponseRedirect('/buyitem/manage?page=1&st=%s&et=%s&grp=%s&fin=%d' % (st, et, grp, fin))
 
 
 # -------------------------------------------------------------
@@ -151,7 +185,7 @@ def manage_view(request):
 # -------------------------------------------------------------
 def update_buy(request, item_id):
     try:
-        project = Item.objects.get(id=item_id)
+        item = Item.objects.get(id=item_id)
 
     except Exception as e:
         print('--update error is %s' % e)
@@ -163,7 +197,7 @@ def update_buy(request, item_id):
         if "upd" in request.POST:
             name = request.POST['name']
             group = request.POST['group']
-            tel = request.POST['tel']
+            tel = request.POST['phone']
             num = request.POST['num']
             good = request.POST['good']
             brand = request.POST['brand']
@@ -171,25 +205,25 @@ def update_buy(request, item_id):
             unit = request.POST['unit']
             info = request.POST['info']
             detail = request.POST['detail']
-            finish = request.POST['finish']
-            project.name = name
-            project.tel = tel
-            project.group = group
-            project.num = num
-            project.good = good
-            project.detail = detail
-            project.brand = brand
-            project.quantity = quantity
-            project.unit = unit
-            project.info = info
-            project.finish = finish
-            project.save()
+            #finish = request.POST['finish']
+            item.name = name
+            item.tel = tel
+            item.group = group
+            item.num = num
+            item.good = good
+            item.detail = detail
+            item.brand = brand
+            item.quantity = quantity
+            item.unit = unit
+            item.info = info
+            #item.finish = finish
+            item.save()
             if ItemLog.objects.exists():
                 idx = ItemLog.objects.latest('id').id
             else:
                 idx = 0
             ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='update',
-                                   other='%s-%s-%s-%s' % (name, good, num, finish))
+                                   other='%s-%s-%s-%s' % (name, good, num, item.finish))
             return HttpResponseRedirect('/buyitem/manage?page=1')
         elif "back" in request.POST:
             return HttpResponseRedirect('/buyitem/manage?page=1')
@@ -273,14 +307,14 @@ def personal_view(request):
         if 'nm' in request.POST:
             res = HttpResponseRedirect('/buyitem/personal')
             person = json.dumps(request.POST['nam'])
-            res.set_cookie(key='person', value=person, max_age=3600 * 24 * 30)
+            res.set_cookie(key='name', value=person, max_age=3600 * 24 * 30)
             return res
         if 'prt' in request.POST:
             psn = request.COOKIES.get('name', '')
             psn = json.loads(psn)
             all_data = Item.objects.filter(name__exact=psn)
             data_list = all_data.values_list()
-            name = f'项目完成情况-%s.xlsx' % psn
+            name = f'物资采购情况-%s.xlsx' % psn
             response = create_excel(data_list, name)
             return response
 
@@ -291,7 +325,7 @@ def personal_view(request):
 # -------------------------------------------------------------
 def create_excel(data_list, name):
     data = pd.DataFrame(data_list)
-    data.columns = ['id', '姓名', '单位', '联系电话', '课题编号', '商品名', '商品型号', '数量', '单位', '采购说明', '商品编号']
+    data.columns = ['id', '商品名', '品牌型号', '单位', '数量', '姓名', '电话', '课题编号', '采购说明', '商品编号', '单位全称', '提交日期', '完成情况']
     output = BytesIO()  # 转二进制流
     data.to_excel(output, index=False)
     output.seek(0)  # 重新定位到开始
