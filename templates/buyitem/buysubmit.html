@@ -157,9 +157,10 @@ body {
       <h3>*****以下内容每次提交均需填写*****</h3>
       <p>
           商品名称：
-          <input type="text" name="good" size="30" placeholder="请不要填入品牌或规格">
-          品牌型号：
-          <input type="text" name="brand" size="30" placeholder="可识别，唯一对应关键字，不能为空">
+          <input type="text" name="good" size="30" placeholder="请不要填入品牌或规格" value={{ god }}>
+          <input type="submit" value="商品查找" name="spd" size="5"><br/><br/>
+          品牌型号(不全请手动添加)：
+          <input type="text" name="brand" size="30" placeholder="可识别，唯一对应关键字，不能为空" value={{ shp }}>
           单位：
           <input type="text" list="itemlist" size="10" name="unit" placeholder="可手动输入">
               <datalist id="itemlist">
@@ -174,7 +175,7 @@ body {
           采购说明：
           <input type="text" name="info" size="30" placeholder="非科研产品请填写情况说明">
           商品编号：
-         <input type="text" name="detail" size="10"><br />
+         <input type="text" name="detail" size="15" placeholder="查找商品后自动生成" value={{ no }}><br />
           <br />
       </p>
       <input type="reset" name="res" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

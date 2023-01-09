@@ -116,7 +116,7 @@ body {
 <form action="/buyitem/submit" method="post">
 {% csrf_token %}
 <div class="header">
-  <h1>{{ ver }}-提交模式</h1>
+  <h1>{{ ver }}-商品查找</h1>
   <p>Welcome to elepikachu's tool site</p>
 </div>
 
@@ -130,55 +130,28 @@ body {
 
 <div class="row">
   <div class="main">
-      <h3>请输入您要提交的项目信息</h3>
-      <h3>*****以下内容仅初次提交时需填写*****</h3>
-      <p>
-          {% if psn == '' %}
-          您的姓名：
-          <input type="text" name="name" size="10">
-          所在单位：
-          <input type="text" name="group" size="20">
-          电话号码：
-          <input type="text" name="phone" size="20">
-          课题编号：
-          <input type="text" name="num" size="20">
-          {% else %}
-          您的姓名：
-          <input type="text" name="name" value="{{ psn }}" size="10">
-          所在单位：
-          <input type="text" name="group" value="{{ grp }}" size="20">
-          电话号码：
-          <input type="text" name="phone" value="{{ tel }}" size="20">
-          课题编号：
-          <input type="text" name="num" value="{{ num }}" size="20">
-          {% endif %}
-          <br />
-      </p>
-      <h3>*****以下内容每次提交均需填写*****</h3>
-      <p>
-          商品名称：
-          <input type="text" name="good" size="30" placeholder="请不要填入品牌或规格">
-          品牌型号：
-          <input type="text" name="brand" size="30" placeholder="可识别，唯一对应关键字，不能为空">
-          单位：
-          <input type="text" list="itemlist" size="10" name="unit" placeholder="可手动输入">
-              <datalist id="itemlist">
-                  <option>个</option>
-                  <option>盒</option>
-                  <option>台</option>
-                  <option>只</option>
-                  <option>套</option>
-              </datalist>
-          数量：
-          <input type="text" name="quantity" size="10" placeholder="物资采购数量"><br /><br />
-          采购说明：
-          <input type="text" name="info" size="30" placeholder="非科研产品请填写情况说明">
-          商品编号：
-         <input type="text" name="detail" size="10"><br />
-          <br />
-      </p>
-      <input type="reset" name="res" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="submit" onclick="return confirm_submit()" name="sub" size="5">
+       <table border="1">
+        <tr>
+            <th>商品名称</th>
+            <th>商品价格</th>
+            <th>商品编号</th>
+            <th>链接</th>
+            <th>品牌</th>
+            <th>操作</th>
+        </tr>
+        {% for item in res %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.number }}</td>
+                <td><a href=http://{{ item.href }}>点击查看</a></td>
+                <td>{{ item.shop }}</td>
+                <td>
+                    <a href="/buyitem/submit?no={{ item.number }}&shop={{ item.shop }}&good={{ good }}">选我</a>
+                </td>
+            </tr>
+        {%  endfor %}
+    </table>
   </div>
 </div>
 

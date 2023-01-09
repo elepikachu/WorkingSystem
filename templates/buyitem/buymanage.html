@@ -100,7 +100,7 @@ body {
 </style>
 <script type="text/javascript">
     function password() {
-        var passw = prompt("本操作为高危操作，请输入管理员密码后进入，默认密码 666666");
+        var passw = prompt("该操作需要输入管理员密码后进入，默认密码 666666");
         if (!passw) {
             alert("没有输入");
             return false;
@@ -111,6 +111,18 @@ body {
         else {
             alert("密码错误，请重新输入");
             return false;
+        }
+    }
+    function password2(id) {
+        var passw = prompt("该操作需要输入管理员密码后进入，默认密码 666666");
+        if (!passw) {
+            alert("没有输入");
+        }
+        if (passw === "666666") {
+            window.location.href="/buyitem/finish/" + id;
+        }
+        else {
+            alert("密码错误，请重新输入");
         }
     }
 </script>
@@ -133,11 +145,11 @@ body {
 
 <div class="row">
   <div class="main">
-      <h3>物资采购情况 -- {{ slo }}</h3>
+      <h3>{{ slo }}物资采购表</h3>
       在过滤和打印表格之前请先选好条件哦： &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;提交时间范围：
       <input type="date" name="date1" value="{{ date1 }}" size="30"> ---
       <input type="date" name="date2" value="{{ date2 }}" size="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      项目组：<select name="grp">
+      所在部门：<select name="grp">
           {% for item in groupbox %}
               <option>{{ item }}</option>
           {% endfor %}
@@ -188,6 +200,9 @@ body {
                 <td>
                     <a href="/buyitem/update/{{ item.id }}">更新行</a>
                     <a href="/buyitem/delete/{{ item.id }}">删除行</a>
+                    {% if item.finish != True %}
+                    <a href="javascript:password2({{ item.id }});">购买完成</a>
+                    {% endif %}
                 </td>
             </tr>
         {%  endfor %}

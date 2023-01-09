@@ -116,11 +116,16 @@ body {
       <h5>项目删除后将无法恢复，请谨慎操作</h5>
       <h5>请选择删除数据日期范围，或直接选择删除全部</h5>
       <br/>
+      所在部门：<select name="grp">
+          {% for item in groupbox %}
+              <option>{{ item }}</option>
+          {% endfor %}
+      </select> <br/>
       <input type="date" name="date1" value="{{ date1 }}" size="30"> ---
       <input type="date" name="date2" value="{{ date2 }}" size="30">
       <br /><br /><br /><br />
-      <input type="submit" name="deldate" value="删除起始日期在范围内的数据" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="submit" name="delend" value="删除结束日期在范围内的数据" size="5"><br /><br />
+      <input type="submit" name="deldate" value="删除提交日期在范围内的数据" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="delgrp" value="删除该部门全部数据" size="5"><br /><br />
       <input type="submit" name="delall" value="    删除全部   " size="5"><br /><br />
   </div>
 </div>

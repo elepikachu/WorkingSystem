@@ -114,7 +114,7 @@ body {
 
 <div class="row">
   <div class="main">
-      <h3>欢迎，{{ psn }}!&nbsp;您当前共有&nbsp;{{ length }}&nbsp;个项目未完成&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <h3>欢迎，{{ psn }}!&nbsp;您当前共有&nbsp;{{ length }}&nbsp;个物品待购买&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="submit" name="ret" value="我不是{{ psn }}?" size="5"></h3>
       <input type="submit" name="prt" value="打印表格" size="5">
       <h5>未完成项目</h5>
@@ -140,7 +140,7 @@ body {
                 <td>{{ item.date }}</td>
                 <td>{{ item.enddate }}</td>
                 <td>{{ item.classification }}</td>
-                <td>{{ item.finish }}%</td>
+                <td>{{ item.finish }}</td>
                 <td>{{ item.detail }}</td>
                 <td>
                     <a href="/project/update/{{ item.id }}">更新行</a>

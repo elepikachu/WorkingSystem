@@ -1,3 +1,5 @@
+import requests
+from bs4 import BeautifulSoup
 from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
@@ -55,7 +57,15 @@ def submit_view(request):
             grp = ''
             tel = ''
             num = ''
-        dic = {'ver': VERSION, 'psn': psn, 'grp': grp, 'tel': tel, 'num': num}
+        if 'good' in request.GET:
+            god = request.GET['good']
+            no = request.GET['no']
+            shp = request.GET['shop']
+        else:
+            god = ''
+            no = ''
+            shp = ''
+        dic = {'ver': VERSION, 'psn': psn, 'grp': grp, 'tel': tel, 'num': num, 'god': god, 'no': no, 'shp': shp}
         return render(request, 'buyitem/buysubmit.html', dic)
     elif request.method == 'POST':
         if 'sub' in request.POST:
@@ -92,6 +102,12 @@ def submit_view(request):
             res.set_cookie(key='tel', value=tel, max_age=3600 * 24 * 30)
             res.set_cookie(key='num', value=num, max_age=3600 * 24 * 30)
             return res
+        elif 'spd' in request.POST:
+            if request.POST['good'] == '':
+                return HttpResponse('商品为空')
+            res = parse_page(request.POST['good'], 1)
+            dic = {'ver': VERSION, 'res':res, 'good':request.POST['good']}
+            return render(request, 'buyitem/buyspider.html', dic)
 
 
 # -------------------------------------------------------------
@@ -101,17 +117,17 @@ def submit_view(request):
 def manage_view(request):
     if request.method == 'GET':
         if 'grp' in request.GET:
-            if request.GET['grp'] == "全部" and request.GET['fin'] == 2:
+            if request.GET['grp'] is "全部" and request.GET['fin'] is 2 or '2':
                 all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'])
-            elif request.GET['fin'] == 2:
+            elif request.GET['fin'] is 2 or '2':
                 all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], group__exact=request.GET['grp'])
-            elif request.GET['grp'] == "全部":
+            elif request.GET['grp'] is "全部":
                 all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], finish__exact=request.GET['fin'])
             else:
                 all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], finish__exact=request.GET['fin'], group__exact=request.GET['grp'])
-            if request.GET['grp'] == 0:
+            if request.GET['fin'] == 0:
                 slo = "未完成"
-            elif request.GET['grp'] == 1:
+            elif request.GET['fin'] == 1:
                 slo = "已完成"
             else:
                 slo = ""
@@ -180,7 +196,7 @@ def manage_view(request):
 
 
 # -------------------------------------------------------------
-# 函数名： update_project
+# 函数名： update_buy
 # 功能： 数据行更新
 # -------------------------------------------------------------
 def update_buy(request, item_id):
@@ -230,15 +246,40 @@ def update_buy(request, item_id):
 
 
 # -------------------------------------------------------------
-# 函数名： delete_project
+# 函数名： finish_buy
+# 功能： 数据行完成
+# -------------------------------------------------------------
+def finish_buy(request, item_id):
+    try:
+        item = Item.objects.get(id=item_id)
+        if item.finish == True:
+            return HttpResponse('--操作失败，该条购买已经完成啦!!--')
+        item.finish = True
+        item.save()
+        name = item.name
+        good = item.good
+        if ItemLog.objects.exists():
+            idx = ItemLog.objects.latest('id').id
+        else:
+            idx = 0
+        ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='finish',
+                               other='%s-%s' % (name, good))
+        return HttpResponseRedirect('/buyitem/manage?page=1')
+    except Exception as e:
+        print('--delete error is %s' % e)
+        return HttpResponse('--更新失败，请稍后再试!!--')
+
+
+# -------------------------------------------------------------
+# 函数名： delete_buy
 # 功能： 数据行删除
 # -------------------------------------------------------------
 def delete_buy(request, item_id):
     try:
-        project = Item.objects.get(id=item_id)
-        name = project.name
-        good = project.good
-        project.delete()
+        item = Item.objects.get(id=item_id)
+        name = item.name
+        good = item.good
+        item.delete()
         if ItemLog.objects.exists():
             idx = ItemLog.objects.latest('id').id
         else:
@@ -248,7 +289,7 @@ def delete_buy(request, item_id):
         return HttpResponseRedirect('/buyitem/manage?page=1')
     except Exception as e:
         print('--delete error is %s' % e)
-        return HttpResponse('--Delete failed!!--')
+        return HttpResponse('--删除失败，请稍后再试!!--')
 
 
 # -------------------------------------------------------------
@@ -261,6 +302,11 @@ def batch_view(request):
         datee = date + datetime.timedelta(weeks=1)
         date1 = date.strftime('%Y-%m-%d')
         date2 = datee.strftime('%Y-%m-%d')
+        groupbox = []
+        all_data = Item.objects.all()
+        for item in all_data:
+            if item.group not in groupbox:
+                groupbox.append(item.group)
         ver = VERSION
         return render(request, 'buyitem/buydelete.html', locals())
     elif request.method == 'POST':
@@ -273,6 +319,29 @@ def batch_view(request):
                 idx = 0
             ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='delete',
                                    other='all')
+            return HttpResponseRedirect('/buyitem/manage?page=1')
+        elif 'deldate' in request.POST:
+            date1 = request.POST['date1']
+            date2 = request.POST['date2']
+            all_data = Item.objects.filter(date__gte=date1, date__lte=date2)
+            all_data.delete()
+            if ItemLog.objects.exists():
+                idx = ItemLog.objects.latest('id').id
+            else:
+                idx = 0
+            ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='delete',
+                                      other='all in %s-%s' % (date1, date2))
+            return HttpResponseRedirect('/buyitem/manage?page=1')
+        elif 'delgrp' in request.POST:
+            grp = request.POST['grp']
+            all_data = Item.objects.filter(group__exact=grp)
+            all_data.delete()
+            if ItemLog.objects.exists():
+                idx = ItemLog.objects.latest('id').id
+            else:
+                idx = 0
+            ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='delete',
+                                other='all for %s' % grp)
             return HttpResponseRedirect('/buyitem/manage?page=1')
 
 
@@ -346,3 +415,56 @@ def log_view(request):
         all_log = all_log[::-1]
         dic = {'ver': VERSION, 'data': all_log}
         return render(request, 'buyitem/buylog.html', dic)
+
+
+# -------------------------------------------------------------
+# 函数名： get_page
+# 功能： 爬取页面
+# -------------------------------------------------------------
+def get_page(url, page):
+    headers = {
+         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+    }
+    try:
+        html = requests.request("GET", url, headers=headers, timeout=10)
+        html.encoding = "utf-8"
+        #print(html.text[:1000])
+        return html.text
+    except:
+        print('爬取失败')
+        return "爬取失败"
+
+
+# -------------------------------------------------------------
+# 函数名： parse_page
+# 功能： 解析爬取页面
+# -------------------------------------------------------------
+def parse_page(item, page):
+    url = "https://search.jd.com/Search?keyword=%s" % item
+    html = get_page(url, page)
+    html = str(html)
+    if html is not None:
+        soup = BeautifulSoup(html, 'html.parser')
+        li_all = soup.select('#J_goodsList ul li')
+        res_list = []
+        for li in li_all:
+            name = [i.get_text() for i in li.select('.p-name em')][0]
+            price = [i.get_text() for i in li.select('.p-price i')][0]
+            if li.select('.p-shop a'):
+                shop = [i.get_text() for i in li.select('.p-shop a')][0]
+            elif li.select('.p-shopnum a'):
+                shop = [i.get_text() for i in li.select('.p-shopnum a')][0]
+            else:
+                print(li)
+                shop = "自营"
+            number = li['data-sku']
+            href = "item.jd.com/%s.html" % number
+            if(len(name) !=0 and len(price) !=0 and len(shop) !=0 and len(number) !=0):
+                info = {'name': name, 'price': price, 'shop': shop, 'number': number, 'href': href}
+                res_list.append(info)
+        return res_list
+    else:
+        print('error')
+        return None
+
+
