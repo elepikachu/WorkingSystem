@@ -4,6 +4,11 @@ from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.encoding import escape_uri_path
+from openpyxl import load_workbook
+import numpy as np
+from openpyxl.utils import get_column_letter
+
+from overworksystem.settings import STATICFILES_DIRS
 from .models import Item, ItemLog
 import datetime
 import json
@@ -140,7 +145,7 @@ def manage_view(request):
         c_page = paginator.page(int(page_num))
         ver = VERSION
         date = datetime.date.today()
-        datee = date - datetime.timedelta(weeks=1)
+        datee = date - datetime.timedelta(weeks=4)
         date1 = datee.strftime('%Y-%m-%d')
         date2 = date.strftime('%Y-%m-%d')
         groupbox = ['全部']
@@ -157,10 +162,12 @@ def manage_view(request):
             if request.POST['grp'] == "全部" and request.POST['fin'] == "全部":
                 all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'])
                 name = f'物资采购情况.xlsx'
+                ofc = False
             elif request.POST['fin'] == "全部":
                 all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
                                                   group__exact=request.POST['grp'])
                 name = f'%s物资采购情况.xlsx' % request.POST['grp']
+                ofc = True
             elif request.POST['grp'] == "全部":
                 if request.POST['fin'] == "未完成":
                     fin = 0
@@ -169,6 +176,7 @@ def manage_view(request):
                 all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
                                                finish__exact=fin)
                 name = f'%s物资采购情况.xlsx' % request.POST['fin']
+                ofc = False
             else:
                 if request.POST['fin'] == "未完成":
                     fin = 0
@@ -177,8 +185,9 @@ def manage_view(request):
                 all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
                                                finish__exact=fin, group__exact=request.POST['grp'])
                 name = f'%s%s物资采购情况.xlsx' % (request.POST['grp'], request.POST['fin'])
+                ofc = True
             data_list = all_data.values_list()
-            response = create_excel(data_list, name)
+            response = create_excel(data_list, name, ofc)
             return response
         if 'unfit' in request.POST:
             return HttpResponseRedirect('/buyitem/manage?page=1')
@@ -384,19 +393,68 @@ def personal_view(request):
             all_data = Item.objects.filter(name__exact=psn)
             data_list = all_data.values_list()
             name = f'物资采购情况-%s.xlsx' % psn
-            response = create_excel(data_list, name)
+            response = create_excel(data_list, name, True)
             return response
+
+
+# -------------------------------------------------------------
+# 函数名： create_new_excel
+# 功能： 打印excel
+# -------------------------------------------------------------
+def create_new_excel(data_list, name):
+    data = pd.DataFrame(data_list)
+    data.columns = ['id', '商品名', '品牌型号', '单位', '数量', '姓名', '电话', '课题编号', '采购说明', '备注', '单位全称', '提交日期', '完成情况']
+    data['备注'] = "商品编号: " + data["备注"]
+    output = BytesIO()  # 转二进制流
+    data.to_excel(output, index=False)
+    output.seek(0)  # 重新定位到开始
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = "attachment;filename=%s" % escape_uri_path(name)
+    response.write(output.getvalue())
+    output.close()
+    return response
+
+
+# -------------------------------------------------------------
+# 函数名： excel_style
+# 功能： 添加excel的格式
+# -------------------------------------------------------------
+def excel_style(x):
+    return ['text-align:center' for x in x]
 
 
 # -------------------------------------------------------------
 # 函数名： create_excel
 # 功能： 打印excel
 # -------------------------------------------------------------
-def create_excel(data_list, name):
-    data = pd.DataFrame(data_list)
-    data.columns = ['id', '商品名', '品牌型号', '单位', '数量', '姓名', '电话', '课题编号', '采购说明', '商品编号', '单位全称', '提交日期', '完成情况']
+def create_excel(data_list, name, office):
+
+    rawdata = pd.DataFrame(data_list)
+    rawdata.columns = ['id', '商品名', '品牌型号', '单位', '数量', '姓名', '电话', '课题编号', '采购说明', '备注', '11', '12', '13']
+    data = rawdata.drop(['11', '12', '13'], axis=1)
+    data['备注'] = "商品编号: " + data["备注"]
+
     output = BytesIO()  # 转二进制流
-    data.to_excel(output, index=False)
+    writer = pd.ExcelWriter(output, engine='openpyxl')
+    data.style.apply(excel_style, axis=0).to_excel(writer, sheet_name='股份-办公用品采购', index=False, startrow=3)
+
+    column_wid = (data.columns.to_series().apply(lambda x: len(x.encode('gbk'))).values)
+    max_wid = (data.astype(str).applymap(lambda x: len(x.encode('gbk'))).agg(max).values)
+    wids = np.max([column_wid, max_wid], axis=0)
+    worksheet = writer.sheets['股份-办公用品采购']
+    for i, wid in enumerate(wids, 1):
+        worksheet.column_dimensions[get_column_letter(i)].width = wid + 2
+
+    worksheet.cell(row=1,column=1).value = '中国石油勘探开发研究院采购计划表'
+    worksheet.cell(row=2, column=1).value = '表单号：NKZ0400-01'
+    worksheet.cell(row=2, column=6).value = '类别：办公用品'
+    if office:
+        worksheet.cell(row=3, column=1).value = '申请单位：' + office
+    else:
+        worksheet.cell(row=3, column=1).value = '申请单位：'
+    worksheet.cell(row=3, column=6).value = '填报日期：' + datetime.datetime.today().strftime("%Y-%m-%d")
+
+    writer.save()
     output.seek(0)  # 重新定位到开始
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = "attachment;filename=%s" % escape_uri_path(name)
@@ -428,7 +486,6 @@ def get_page(url, page):
     try:
         html = requests.request("GET", url, headers=headers, timeout=10)
         html.encoding = "utf-8"
-        #print(html.text[:1000])
         return html.text
     except:
         print('爬取失败')
