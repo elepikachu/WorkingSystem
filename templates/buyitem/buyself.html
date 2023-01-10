@@ -107,7 +107,7 @@ body {
 </div>
 
 <div class="navbar">
-  <a href="/project">应用首页</a>
+  <a href="/buyitem">应用首页</a>
   <a href="manage?page=1">返回管理模式</a>
   <a href="/" class="right">返回主页</a>
 </div>
@@ -128,6 +128,7 @@ body {
             <th>计划完成</th>
             <th>计划类别</th>
             <th>项目进展</th>
+            <th>物资分类</th>
             <th>备注</th>
             <th>操作</th>
         </tr>
@@ -141,10 +142,11 @@ body {
                 <td>{{ item.enddate }}</td>
                 <td>{{ item.classification }}</td>
                 <td>{{ item.finish }}</td>
+                <td>{{ item.calssif }}</td>
                 <td>{{ item.detail }}</td>
                 <td>
-                    <a href="/project/update/{{ item.id }}">更新行</a>
-                    <a href="/project/delete/{{ item.id }}">删除行</a>
+                    <a href="/buyitem/update/{{ item.id }}">更新行</a>
+                    <a href="/buyitem/delete/{{ item.id }}">删除行</a>
                 </td>
             </tr>
         {%  endfor %}
@@ -175,8 +177,8 @@ body {
                 <td>{{ item.finish }}%</td>
                 <td>{{ item.detail }}</td>
                 <td>
-                    <a href="/project/update/{{ item.id }}">更新行</a>
-                    <a href="/project/delete/{{ item.id }}">删除行</a>
+                    <a href="/buyitem/update/{{ item.id }}">更新行</a>
+                    <a href="/buyitem/delete/{{ item.id }}">删除行</a>
                 </td>
             </tr>
         {%  endfor %}

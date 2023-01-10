@@ -96,6 +96,18 @@ body {
     }
 }
 </style>
+<script type="text/javascript">
+    function confirm_delete() {
+        let cfm = confirm("删除后将不可恢复，请谨慎操作");
+        if (cfm === true) {
+            alert("删除成功！");
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>
 </head>
 <body>
 <form action="/buyitem/batch" method="post">
@@ -120,13 +132,23 @@ body {
           {% for item in groupbox %}
               <option>{{ item }}</option>
           {% endfor %}
-      </select> <br/>
-      <input type="date" name="date1" value="{{ date1 }}" size="30"> ---
-      <input type="date" name="date2" value="{{ date2 }}" size="30">
+      </select> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="delgrp" value="删除该部门全部数据" size="5" onclick="return confirm_delete()"><br/><br />
+      物资分类：<select name="cif">
+              <option>办公用品</option>
+              <option>设备耗材</option>
+              <option>办公家具</option>
+              <option>五金杂品</option>
+              <option>劳动防护</option>
+              <option>化学试剂</option>
+              <option>实验耗材及小型设备</option>
+          </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="delcif" value="删除该分类全部数据" size="5" onclick="return confirm_delete()"><br /><br />
+      提交日期：<input type="date" name="date1" value="{{ date1 }}" size="30"> ---
+      <input type="date" name="date2" value="{{ date2 }}" size="30"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="deldate" value="删除提交日期范围内数据" size="5" onclick="return confirm_delete()">
+
       <br /><br /><br /><br />
-      <input type="submit" name="deldate" value="删除提交日期在范围内的数据" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="submit" name="delgrp" value="删除该部门全部数据" size="5"><br /><br />
-      <input type="submit" name="delall" value="    删除全部   " size="5"><br /><br />
+      ---->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="delall" value="        删除全部       " size="5" onclick="return confirm_delete()">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<----
+      <br /><br />
   </div>
 </div>
 

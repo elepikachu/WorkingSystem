@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.encoding import escape_uri_path
 from openpyxl import load_workbook
 import numpy as np
+from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 
 from overworksystem.settings import STATICFILES_DIRS
@@ -83,13 +84,14 @@ def submit_view(request):
             quantity = request.POST['quantity']
             unit = request.POST['unit']
             info = request.POST['info']
+            cif = request.POST['cif']
             detail = request.POST['detail']
             if Item.objects.exists():
                 id = Item.objects.latest('id').id + 1
             else:
                 id = 1
             Item.objects.create(id=id, name=name, phone=tel, group=group, num=num, unit=unit, date=datetime.datetime.today(),
-                                detail=detail, quantity=quantity, brand=brand, info=info, finish=0, good=good)
+                                detail=detail, quantity=quantity, brand=brand, info=info, finish=0, good=good, classif=cif)
             if ItemLog.objects.exists():
                 idx = ItemLog.objects.latest('id').id
             else:
@@ -112,7 +114,17 @@ def submit_view(request):
                 return HttpResponse('商品为空')
             res = parse_page(request.POST['good'], 1)
             dic = {'ver': VERSION, 'res':res, 'good':request.POST['good']}
-            return render(request, 'buyitem/buyspider.html', dic)
+            rep = render(request, 'buyitem/buyspider.html', dic)
+            if request.COOKIES.get('name') == '':
+                name = request.POST['name']
+                group = request.POST['group']
+                tel = request.POST['phone']
+                num = request.POST['num']
+                rep.set_cookie(key='name', value=name, max_age=3600 * 24 * 30)
+                rep.set_cookie(key='group', value=group, max_age=3600 * 24 * 30)
+                rep.set_cookie(key='tel', value=tel, max_age=3600 * 24 * 30)
+                rep.set_cookie(key='num', value=num, max_age=3600 * 24 * 30)
+            return rep
 
 
 # -------------------------------------------------------------
@@ -148,10 +160,11 @@ def manage_view(request):
         datee = date - datetime.timedelta(weeks=4)
         date1 = datee.strftime('%Y-%m-%d')
         date2 = date.strftime('%Y-%m-%d')
-        groupbox = ['全部']
+        groupbox = []
         for item in all_data:
             if item.group not in groupbox:
                 groupbox.append(item.group)
+        groupbox.append('全部')
         return render(request, 'buyitem/buymanage.html', locals())
     elif request.method == 'POST':
         if 'del' in request.POST:
@@ -159,32 +172,36 @@ def manage_view(request):
         if 'self' in request.POST:
             return HttpResponseRedirect('/buyitem/personal')
         if 'pri' in request.POST:
+            mon = (datetime.datetime.today()).strftime("%m")
+            mon = str(int(mon) + 1)
             if request.POST['grp'] == "全部" and request.POST['fin'] == "全部":
                 all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'])
-                name = f'物资采购情况.xlsx'
+                name = f'物资采购信息-全.xlsx'
                 ofc = False
             elif request.POST['fin'] == "全部":
                 all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
                                                   group__exact=request.POST['grp'])
-                name = f'%s物资采购情况.xlsx' % request.POST['grp']
+                name = f'物资采购信息-全-%s.xlsx' % request.POST['grp']
                 ofc = True
             elif request.POST['grp'] == "全部":
                 if request.POST['fin'] == "未完成":
                     fin = 0
+                    name = f'股份月度计划-%s月.xlsx' % mon
                 elif request.POST['fin'] == "已完成":
                     fin = 1
+                    name = f'物资采购信息-已完成.xlsx'
                 all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
                                                finish__exact=fin)
-                name = f'%s物资采购情况.xlsx' % request.POST['fin']
                 ofc = False
             else:
                 if request.POST['fin'] == "未完成":
                     fin = 0
+                    name = f'股份月度计划-%s月-%s.xlsx' % (mon, request.POST['grp'])
                 elif request.POST['fin'] == "已完成":
                     fin = 1
+                    name = f'物资采购信息-已完成-%s.xlsx' % request.POST['grp']
                 all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
                                                finish__exact=fin, group__exact=request.POST['grp'])
-                name = f'%s%s物资采购情况.xlsx' % (request.POST['grp'], request.POST['fin'])
                 ofc = True
             data_list = all_data.values_list()
             response = create_excel(data_list, name, ofc)
@@ -230,6 +247,7 @@ def update_buy(request, item_id):
             unit = request.POST['unit']
             info = request.POST['info']
             detail = request.POST['detail']
+            cif = request.POST['cif']
             #finish = request.POST['finish']
             item.name = name
             item.tel = tel
@@ -240,6 +258,7 @@ def update_buy(request, item_id):
             item.brand = brand
             item.quantity = quantity
             item.unit = unit
+            item.classif = cif
             item.info = info
             #item.finish = finish
             item.save()
@@ -352,6 +371,17 @@ def batch_view(request):
             ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='delete',
                                 other='all for %s' % grp)
             return HttpResponseRedirect('/buyitem/manage?page=1')
+        elif 'delcif' in request.POST:
+            cif = request.POST['cif']
+            all_data = Item.objects.filter(classif__exact=cif)
+            all_data.delete()
+            if ItemLog.objects.exists():
+                idx = ItemLog.objects.latest('id').id
+            else:
+                idx = 0
+            ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='delete',
+                                other='all for %s' % cif)
+            return HttpResponseRedirect('/buyitem/manage?page=1')
 
 
 # -------------------------------------------------------------
@@ -392,7 +422,9 @@ def personal_view(request):
             psn = json.loads(psn)
             all_data = Item.objects.filter(name__exact=psn)
             data_list = all_data.values_list()
-            name = f'物资采购情况-%s.xlsx' % psn
+            mon = (datetime.datetime.today()).strftime("%m")
+            mon = str(int(mon) + 1)
+            name = f'股份月度计划-%s月-%s.xlsx' % (mon, psn)
             response = create_excel(data_list, name, True)
             return response
 
@@ -425,34 +457,22 @@ def excel_style(x):
 
 # -------------------------------------------------------------
 # 函数名： create_excel
-# 功能： 打印excel
+# 功能： 生成excel
 # -------------------------------------------------------------
 def create_excel(data_list, name, office):
 
     rawdata = pd.DataFrame(data_list)
-    rawdata.columns = ['id', '商品名', '品牌型号', '单位', '数量', '姓名', '电话', '课题编号', '采购说明', '备注', '11', '12', '13']
-    data = rawdata.drop(['11', '12', '13'], axis=1)
-    data['备注'] = "商品编号: " + data["备注"]
+    rawdata.columns = ['序号', '商品名称', '品牌型号', '单位', '数量', '姓名', '电话', '课题编号', '采购说明', '备注', '11', '12', '13', '14']
+    rawdata['备注'] = "商品编号: " + rawdata["备注"]
 
     output = BytesIO()  # 转二进制流
     writer = pd.ExcelWriter(output, engine='openpyxl')
-    data.style.apply(excel_style, axis=0).to_excel(writer, sheet_name='股份-办公用品采购', index=False, startrow=3)
-
-    column_wid = (data.columns.to_series().apply(lambda x: len(x.encode('gbk'))).values)
-    max_wid = (data.astype(str).applymap(lambda x: len(x.encode('gbk'))).agg(max).values)
-    wids = np.max([column_wid, max_wid], axis=0)
-    worksheet = writer.sheets['股份-办公用品采购']
-    for i, wid in enumerate(wids, 1):
-        worksheet.column_dimensions[get_column_letter(i)].width = wid + 2
-
-    worksheet.cell(row=1,column=1).value = '中国石油勘探开发研究院采购计划表'
-    worksheet.cell(row=2, column=1).value = '表单号：NKZ0400-01'
-    worksheet.cell(row=2, column=6).value = '类别：办公用品'
-    if office:
-        worksheet.cell(row=3, column=1).value = '申请单位：' + office
-    else:
-        worksheet.cell(row=3, column=1).value = '申请单位：'
-    worksheet.cell(row=3, column=6).value = '填报日期：' + datetime.datetime.today().strftime("%Y-%m-%d")
+    writer = print_excel(writer, '股份-办公用品采购', '办公用品', rawdata, office)
+    writer = print_excel(writer, '股份-设备耗材采购', '设备耗材', rawdata, office)
+    writer = print_excel(writer, '股份-办公家具', '办公家具', rawdata, office)
+    writer = print_excel(writer, '股份-五金杂品采购', '五金杂品', rawdata, office)
+    writer = print_excel(writer, '股份-劳动防护用品', '劳动防护', rawdata, office)
+    writer = print_excel(writer, '股份-实验耗材及小型设备', '实验耗材及小型设备', rawdata, office)
 
     writer.save()
     output.seek(0)  # 重新定位到开始
@@ -461,6 +481,48 @@ def create_excel(data_list, name, office):
     response.write(output.getvalue())
     output.close()
     return response
+
+
+# -------------------------------------------------------------
+# 函数名： print_excel
+# 功能： 按类别把数据输出到excel
+# -------------------------------------------------------------
+def print_excel(writer, word, wd, rawdata, of):
+    data = rawdata[rawdata['12'] == wd]
+    if not data.empty:
+        data = data.drop(['11', '12', '13', '14'], axis=1)
+        data.style.apply(excel_style, axis=0).to_excel(writer, sheet_name=word, index=False, startrow=3)
+
+        column_wid = (data.columns.to_series().apply(lambda x: len(x.encode('gbk'))).values)
+        max_wid = (data.astype(str).applymap(lambda x: len(x.encode('gbk'))).agg(max).values)
+        wids = np.max([column_wid, max_wid], axis=0)
+        worksheet = writer.sheets[word]
+        for i, wid in enumerate(wids, 1):
+            worksheet.column_dimensions[get_column_letter(i)].width = wid + 2
+    else:
+        try:
+            data = data.drop(['11', '12', '13', '14'], axis=1)
+        except:
+            pass
+        data.to_excel(writer, sheet_name=word, index=False, startrow=3)
+
+    worksheet = writer.sheets[word]
+    mon = (datetime.datetime.today()).strftime("%m")
+    mon = str(int(mon) + 1)
+    worksheet.cell(row=1, column=1).value = '            中国石油勘探开发研究院采购计划表(' + mon + '月)'
+    worksheet['A1'].font = Font(size=20, bold=True)
+    worksheet.cell(row=2, column=1).value = '表单号：NKZ0400-01'
+    worksheet['A2'].font = Font(size=12, bold=True)
+    worksheet.cell(row=2, column=6).value = '类别：' + wd
+    worksheet['F2'].font = Font(size=12, bold=True)
+    if of:
+        worksheet.cell(row=3, column=1).value = '申请单位：' + rawdata['11'][0]
+    else:
+        worksheet.cell(row=3, column=1).value = '申请单位：'
+    worksheet['A3'].font = Font(size=12, bold=True)
+    worksheet.cell(row=3, column=6).value = '填报日期：' + datetime.datetime.today().strftime("%Y-%m-%d")
+    worksheet['F3'].font = Font(size=12, bold=True)
+    return writer
 
 
 # -------------------------------------------------------------
@@ -512,7 +574,6 @@ def parse_page(item, page):
             elif li.select('.p-shopnum a'):
                 shop = [i.get_text() for i in li.select('.p-shopnum a')][0]
             else:
-                print(li)
                 shop = "自营"
             number = li['data-sku']
             href = "item.jd.com/%s.html" % number
