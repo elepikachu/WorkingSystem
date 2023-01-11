@@ -2,7 +2,7 @@
 {% load static %}
 <html>
 <head>
-<title>{{ ver }}-查看日志</title>
+<title>{{ ver }}-意见建议</title>
 <link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -65,16 +65,15 @@ body {
     flex-wrap: wrap;
 }
 
-
 /* 主要的内容区域 */
 .main {
     -ms-flex: 70%; /* IE10 */
     flex: 70%;
-    background-color: white;
-    padding: 20px;
     text-align: center;
+    background-image: url({% static 'images/babara.jpeg' %});
+    background-position: top;
+    padding: 20px;
 }
-
 
 /* 底部 */
 .footer {
@@ -100,9 +99,10 @@ body {
 </style>
 </head>
 <body>
-
+<form action="/buyitem/suggestion" method="post">
+{% csrf_token %}
 <div class="header">
-  <h1>{{ ver }}-查看日志</h1>
+  <h1>{{ ver }}-意见建议</h1>
   <p>Welcome to elepikachu's tool site</p>
 </div>
 
@@ -117,17 +117,18 @@ body {
 
 <div class="row">
   <div class="main">
-      <h3>操作日志</h3>
-      <p>序号-日期-ip地址-操作-内容</p>
-      <p>
-          {% for item in data %}
-              {{ item.id }}-
-              {{ item.date }}-
-              {{ item.ip }}-
-              {{ item.cmd }}-
-              {{ item.other }} <br />
-        {%  endfor %}
-      </p>
+      如果使用过程中有什么BUG或建议，请填写下表并提交~会尽快修正的哦^_^<br/><br/>
+      意见分类：
+          <select name="typ">
+              <option>使用BUG</option>
+              <option>新功能建议</option>
+              <option>格式问题</option>
+              <option>给点鼓励</option>
+              <option>其他</option>
+          </select><br/><br/>
+      <textarea id="sug" name="sug" cols="80" rows="8"></textarea><br/><br/><br/>
+      <input type="reset" name="res" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="sub" size="5" onclick="alert('提交成功')">
   </div>
 </div>
 

@@ -10,7 +10,7 @@ from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 
 from overworksystem.settings import STATICFILES_DIRS
-from .models import Item, ItemLog
+from .models import Item, ItemLog, Suggestion
 import datetime
 import json
 import pandas as pd
@@ -44,6 +44,28 @@ def buy_view(request):
 
 
 # -------------------------------------------------------------
+# 函数名： suggest_view
+# 功能： 意见建议页面
+# -------------------------------------------------------------
+def suggest_view(request):
+    if request.method == 'GET':
+        dic = {'ver': VERSION}
+        return render(request, 'buyitem/buysuggestion.html', dic)
+    elif request.method == 'POST':
+        if 'sub' in request.POST:
+            sug = request.POST['sug']
+            typ = request.POST['typ']
+            if Suggestion.objects.exists():
+                idx = ItemLog.objects.latest('id').id
+            else:
+                idx = 0
+            Suggestion.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), detail=sug, type=typ, finish=0)
+            return HttpResponseRedirect('/buyitem')
+
+
+
+
+# -------------------------------------------------------------
 # 函数名： submit_view
 # 功能： 提交模式
 # -------------------------------------------------------------
@@ -67,6 +89,8 @@ def submit_view(request):
             god = request.GET['good']
             no = request.GET['no']
             shp = request.GET['shop']
+            if no != '':
+                no = '商品编号：' + no
         else:
             god = ''
             no = ''
@@ -463,7 +487,7 @@ def create_excel(data_list, name, office):
 
     rawdata = pd.DataFrame(data_list)
     rawdata.columns = ['序号', '商品名称', '品牌型号', '单位', '数量', '姓名', '电话', '课题编号', '采购说明', '备注', '11', '12', '13', '14']
-    rawdata['备注'] = "商品编号: " + rawdata["备注"]
+    #rawdata['备注'] = "商品编号: " + rawdata["备注"]
 
     output = BytesIO()  # 转二进制流
     writer = pd.ExcelWriter(output, engine='openpyxl')

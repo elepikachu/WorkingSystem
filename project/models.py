@@ -19,3 +19,5 @@ class ProjectLog(models.Model):
     date = models.DateTimeField('操作时间')
     cmd = models.CharField('操作类型', max_length=50, default='')
     other = models.CharField('备注', max_length=70, default='')
+
+
