@@ -63,8 +63,6 @@ def suggest_view(request):
             return HttpResponseRedirect('/buyitem')
 
 
-
-
 # -------------------------------------------------------------
 # 函数名： submit_view
 # 功能： 提交模式
@@ -136,9 +134,7 @@ def submit_view(request):
         elif 'spd' in request.POST:
             if request.POST['good'] == '':
                 return HttpResponse('商品为空')
-            res = parse_page(request.POST['good'], 1)
-            dic = {'ver': VERSION, 'res':res, 'good':request.POST['good']}
-            rep = render(request, 'buyitem/buyspider.html', dic)
+            rep = HttpResponseRedirect('/buyitem/spider?good=%s&pg=1' % request.POST['good'])
             if request.COOKIES.get('name') == '':
                 name = request.POST['name']
                 group = request.POST['group']
@@ -149,6 +145,19 @@ def submit_view(request):
                 rep.set_cookie(key='tel', value=tel, max_age=3600 * 24 * 30)
                 rep.set_cookie(key='num', value=num, max_age=3600 * 24 * 30)
             return rep
+
+
+# -------------------------------------------------------------
+# 函数名： spider_view
+# 功能： 爬取数据展示
+# -------------------------------------------------------------
+def spider_view(request):
+    page = request.GET['pg']
+    good = request.GET['good']
+    res = parse_page(good, page)
+    page = int(page)
+    dic = {'ver': VERSION, 'res': res, 'good': good, 'lastpg': page-1, 'nextpg': page+1}
+    return render(request, 'buyitem/buyspider.html', dic)
 
 
 # -------------------------------------------------------------
@@ -441,7 +450,17 @@ def personal_view(request):
             person = json.dumps(request.POST['nam'])
             res.set_cookie(key='name', value=person, max_age=3600 * 24 * 30)
             return res
-        if 'prt' in request.POST:
+        if 'prt1' in request.POST:
+            psn = request.COOKIES.get('name', '')
+            psn = json.loads(psn)
+            all_data = Item.objects.filter(name__exact=psn, finish__exact=0)
+            data_list = all_data.values_list()
+            mon = (datetime.datetime.today()).strftime("%m")
+            mon = str(int(mon) + 1)
+            name = f'股份月度计划-%s月-%s.xlsx' % (mon, psn)
+            response = create_excel(data_list, name, True)
+            return response
+        if 'prt2' in request.POST:
             psn = request.COOKIES.get('name', '')
             psn = json.loads(psn)
             all_data = Item.objects.filter(name__exact=psn)
@@ -565,7 +584,7 @@ def log_view(request):
 # 函数名： get_page
 # 功能： 爬取页面
 # -------------------------------------------------------------
-def get_page(url, page):
+def get_page(url):
     headers = {
          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
     }
@@ -583,8 +602,8 @@ def get_page(url, page):
 # 功能： 解析爬取页面
 # -------------------------------------------------------------
 def parse_page(item, page):
-    url = "https://search.jd.com/Search?keyword=%s" % item
-    html = get_page(url, page)
+    url = "https://search.jd.com/Search?keyword=%s&page=%s" % (item, page)
+    html = get_page(url)
     html = str(html)
     if html is not None:
         soup = BeautifulSoup(html, 'html.parser')
