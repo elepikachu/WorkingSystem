@@ -152,6 +152,14 @@ body {
             </tr>
         {%  endfor %}
     </table>
+  <br/><br/>
+  {% if lastpg == 0 %}
+  上一页
+  {% else %}
+  <a href="/buyitem/spider?good={{ good }}&pg={{ lastpg }}">上一页</a>
+  {% endif %}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="/buyitem/spider?good={{ good }}&pg={{ nextpg }}">下一页</a>
   </div>
 </div>
 
