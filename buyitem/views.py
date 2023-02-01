@@ -1,22 +1,20 @@
-import requests
-from bs4 import BeautifulSoup
-from django.core.paginator import Paginator
-from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.encoding import escape_uri_path
-from openpyxl import load_workbook
-import numpy as np
-from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
-
-from overworksystem.settings import STATICFILES_DIRS
 from .models import Item, ItemLog, Suggestion
-import datetime
-import json
-import pandas as pd
+from django.core.paginator import Paginator
+from django.shortcuts import render
+from openpyxl.styles import Font
+from bs4 import BeautifulSoup
 from io import BytesIO
 
-# Create your views here.
+import pandas as pd
+import numpy as np
+
+import datetime
+import requests
+import json
+
 
 VERSION = '物资采购系统 1.0.0'
 

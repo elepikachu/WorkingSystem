@@ -1,14 +1,14 @@
-from django.core.paginator import Paginator
-from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.encoding import escape_uri_path
+from django.core.paginator import Paginator
 from .models import Project, ProjectLog
-import datetime
-import json
-import pandas as pd
+from django.shortcuts import render
 from io import BytesIO
 
-# Create your views here.
+import pandas as pd
+import datetime
+import json
+
 
 VERSION = '项目管理系统 1.0.0'
 

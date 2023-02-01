@@ -1,8 +1,5 @@
 from django.db import models
 
-# Create your models here.
-from django.db import models
-
 
 class Item(models.Model):
     id = models.IntegerField('编号', primary_key=True)

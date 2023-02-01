@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.views.decorators.http import require_GET
 
 
 VERSION = '小皮的工具库 1.0.0'
@@ -38,3 +39,16 @@ def info_view(request):
 def food_view(request):
     dic = {'ver': VERSION}
     return render(request, 'food.html', dic)
+
+
+# -------------------------------------------------------------
+# 函数名： robots_txt
+# 功能： robots.txt
+# -------------------------------------------------------------
+@require_GET
+def robots_txt(request):
+    lines = [
+        "User-Agent: *",
+        "Disallow: *",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
