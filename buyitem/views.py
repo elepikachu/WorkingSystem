@@ -235,7 +235,7 @@ def manage_view(request):
                                                finish__exact=fin, group__exact=request.POST['grp'])
                 ofc = True
             data_list = all_data.values_list()
-            response = create_excel(data_list, name, ofc)
+            response = create_excel(data_list, name, ofc, request)
             return response
         if 'unfit' in request.POST:
             return HttpResponseRedirect('/buyitem/manage?page=1')
@@ -456,7 +456,7 @@ def personal_view(request):
             mon = (datetime.datetime.today()).strftime("%m")
             mon = str(int(mon) + 1)
             name = f'股份月度计划-%s月-%s.xlsx' % (mon, psn)
-            response = create_excel(data_list, name, True)
+            response = create_excel(data_list, name, True, request)
             return response
         if 'prt2' in request.POST:
             psn = request.COOKIES.get('name', '')
@@ -466,7 +466,7 @@ def personal_view(request):
             mon = (datetime.datetime.today()).strftime("%m")
             mon = str(int(mon) + 1)
             name = f'股份月度计划-%s月-%s.xlsx' % (mon, psn)
-            response = create_excel(data_list, name, True)
+            response = create_excel(data_list, name, True, request)
             return response
 
 
@@ -474,7 +474,7 @@ def personal_view(request):
 # 函数名： create_new_excel
 # 功能： 打印excel
 # -------------------------------------------------------------
-def create_new_excel(data_list, name):
+def create_new_excel(data_list, name, request):
     data = pd.DataFrame(data_list)
     data.columns = ['id', '商品名', '品牌型号', '单位', '数量', '姓名', '电话', '课题编号', '采购说明', '备注', '单位全称', '提交日期', '完成情况']
     data['备注'] = "商品编号: " + data["备注"]
@@ -485,6 +485,12 @@ def create_new_excel(data_list, name):
     response['Content-Disposition'] = "attachment;filename=%s" % escape_uri_path(name)
     response.write(output.getvalue())
     output.close()
+    if ItemLog.objects.exists():
+        idx = ItemLog.objects.latest('id').id
+    else:
+        idx = 0
+    ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='print',
+                           other='chart')
     return response
 
 
@@ -500,7 +506,7 @@ def excel_style(x):
 # 函数名： create_excel
 # 功能： 生成excel
 # -------------------------------------------------------------
-def create_excel(data_list, name, office):
+def create_excel(data_list, name, office, request):
 
     rawdata = pd.DataFrame(data_list)
     rawdata.columns = ['序号', '商品名称', '品牌型号', '单位', '数量', '姓名', '电话', '课题编号', '采购说明', '备注', '11', '12', '13', '14']
@@ -521,6 +527,13 @@ def create_excel(data_list, name, office):
     response['Content-Disposition'] = "attachment;filename=%s" % escape_uri_path(name)
     response.write(output.getvalue())
     output.close()
+    if ItemLog.objects.exists():
+        idx = ItemLog.objects.latest('id').id
+    else:
+        idx = 0
+    ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='print',
+                           other='chart')
+    return response
     return response
 
 
@@ -605,7 +618,7 @@ def parse_page(item, page):
     html = str(html)
     if html is not None:
         soup = BeautifulSoup(html, 'html.parser')
-        li_all = soup.select('#J_goodsList ul li')
+        li_all = soup.select('#J_goodsList ul .gl-item')
         res_list = []
         for li in li_all:
             name = [i.get_text() for i in li.select('.p-name em')][0]
