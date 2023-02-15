@@ -42,7 +42,6 @@ body {
 /* 创建两个列 */
 /* 边栏 */
 .side {
-    -ms-flex: 20%; /* IE10 */
     flex: 20%;
     background-color: lightcyan;
     padding: 20px;
@@ -60,13 +59,74 @@ body {
 
 /* 主要的内容区域 */
 .main {
-    -ms-flex: 70%; /* IE10 */
     flex: 70%;
     height: 600px;
     background-color: lightpink;
     padding: 20px;
 }
 
+.focus {
+    position: relative;
+    width: 93%;
+    height: 100%;
+    padding: 20px;
+    background-color: lightpink;
+    overflow: hidden;
+}
+
+.focus ul {
+    width: 500%;
+    position: absolute;
+    top:0;
+    left:0;
+}
+
+.focus ul li {
+    float: left;
+}
+
+.arrowl,
+.arrowr {
+    display: none;
+    position: absolute;
+    top: 50%;
+    margin-top: -20px;
+    width: 24px;
+    height: 40px;
+    background: rgba(0,0,0,.3);
+    text-align: center;
+    line-height: 40px;
+    color:#ffffff;
+    font-family: 'Helvetica', sans-serif;
+    font-size: 18px;
+    z-index: 2;
+}
+
+.arrowr {
+    right: 0;
+}
+
+.circle {
+    position: absolute;
+    bottom: -10px;
+    left: 50px;
+    list-style: none;
+}
+
+.circle li {
+    float: left;
+    width: 8px;
+    height: 8px;
+    border: 2px solid rgba(255,255,255,0.5);
+    margin: 0 3px;
+    border-radius: 50%;
+    /* 鼠标经过显示小手 */
+    cursor: pointer;
+}
+
+.current {
+    background-color: #ffffff;
+}
 
 /* 底部 */
 .footer {
@@ -90,6 +150,104 @@ body {
     }
 }
 </style>
+<script src="{% static 'js/animate.js' %}"></script>
+<script>
+    // 网页轮播图js代码
+    window.addEventListener('load', function () {
+        var arrowl = document.querySelector('.arrowl');
+        var arrowr = document.querySelector('.arrowr');
+        var focus = document.querySelector('.focus');
+        // 鼠标经过显示箭头，移开隐藏
+        focus.addEventListener('mouseenter', function() {
+            arrowl.style.display = 'block';
+            arrowr.style.display = 'block';
+            clearInterval(timer);
+            timer = null;
+        })
+        focus.addEventListener('mouseleave', function() {
+            arrowl.style.display = 'none';
+            arrowr.style.display = 'none';
+            var timer = setInterval(function () {
+                arrowr.click();
+            }, 2000);
+        })
+        // 动态生成小圆圈
+        var ul = focus.querySelector('ul');
+        var ol = focus.querySelector('ol');
+        var focusWid = focus.offsetWidth;
+        var num = 0;
+        var circle = 0;
+        var flag = true
+        for (var i=0; i<ul.children.length; i++) {
+            var li = document.createElement('li');
+            li.setAttribute('idx', i);
+            ol.appendChild(li);
+            // 排他思想
+            li.addEventListener('click', function () {
+                for (var i=0; i<ol.children.length;i++) {
+                    ol.children[i].className = '';
+                }
+                this.className = 'current';
+                // 点小圆圈移动图片
+                var idx = this.getAttribute('idx');
+                num = idx;
+                circle = idx;
+                animate(ul, -focusWid * idx);
+            })
+        }
+        ol.children[0].className = 'current';
+        // 克隆第一张图片放到ul最后
+        var first = ul.children[0].cloneNode(true);
+        ul.appendChild(first);
+        // 点按钮滚动图片
+        arrowr.addEventListener('click', function (){
+            if (flag) {
+                flag = false;
+                if (num === ul.children.length - 1) {
+                    num = 0;
+                    ul.style.left = 0;
+                }
+                num++;
+                animate(ul, -num * focusWid, function (){
+                    flag = true;
+                });
+                circle++;
+                if (circle === ul.children.length - 1) {
+                    circle = 0;
+                }
+                for (var i = 0; i < ol.children.length; i++) {
+                    ol.children[i].className = '';
+                }
+                ol.children[circle].className = 'current';
+            }
+        })
+        arrowl.addEventListener('click', function (){
+            if (flag) {
+                flag = false;
+                if (num === 0) {
+                    num = ul.children.length - 1;
+                    ul.style.left = num * focusWid + 'px';
+                }
+                num--;
+                animate(ul, -num * focusWid, function () {
+                    flag = true;
+                });
+                circle--;
+                if (circle < 0) {
+                    circle = ul.children.length - 1;
+                }
+                for (var i = 0; i < ol.children.length; i++) {
+                    ol.children[i].className = '';
+                }
+                ol.children[circle].className = 'current';
+            }
+        })
+        // 自动播放轮播图
+        var timer = setInterval(function () {
+            arrowr.click();
+        }, 2000);
+    })
+</script>
 </head>
 <body>
 
@@ -111,7 +269,18 @@ body {
       <a href="buyitem">物资采购系统</a><br />
   </div>
   <div class="main">
-      <img src="{% static 'images/mainimage.jpg' %}" width="100%" height="100%" align="center">
+      <div class="focus">
+          <a href="javascript:;" class="arrowl"> &lt; </a>
+          <a href="javascript:;" class="arrowr"> &gt; </a>
+      <ul>
+          <li><a href="javascript:;"><img src="{% static 'images/mainimage.jpg' %}" width="1200px" height="500px" align="center"></a></li>
+          <li><a href="javascript:;"><img src="{% static 'images/cnpc.png' %}" width="1200px" height="500px" align="center"></a></li>
+          <li><a href="javascript:;"><img src="{% static 'images/yuri.jpg' %}" width="1200px" height="500px" align="center"></a></li>
+      </ul>
+          <ol class="circle">
+          {# js动态生成小圆圈 #}
+          </ol>
+          </div>
   </div>
 </div>
 
