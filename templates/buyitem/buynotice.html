@@ -2,7 +2,7 @@
 {% load static %}
 <html>
 <head>
-<title>{{ ver }}-首页</title>
+<title>{{ ver }}-意见建议</title>
 <link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -69,9 +69,14 @@ body {
 .main {
     -ms-flex: 70%; /* IE10 */
     flex: 70%;
-    text-align: center;
-    background-color: white;
+    text-align: left;
+    background-image: url({% static 'images/babara.jpeg' %});
+    background-position: top;
     padding: 20px;
+}
+
+.main h3 {
+    text-align: center;
 }
 
 /* 底部 */
@@ -98,9 +103,10 @@ body {
 </style>
 </head>
 <body>
-
+<form action="/buyitem/suggestion" method="post">
+{% csrf_token %}
 <div class="header">
-  <h1>{{ ver }}-首页</h1>
+  <h1>{{ ver }}-意见建议</h1>
   <p>Welcome to elepikachu's tool site</p>
 </div>
 
@@ -111,16 +117,19 @@ body {
   <a href="log">查看日志</a>
   <a href="suggestion"> 意见建议 </a>
     <a href="info"> 填写说明 </a>
-  <a href="{% static 'file/buyitem_app.rar' %}"> APP下载 </a>
   <a href="/" class="right">返回主页</a>
 </div>
 
 <div class="row">
   <div class="main">
-      <h2>欢迎使用物资采购系统</h2>
-      <h5>请点击提交模式提交采购，使用管理模式管理物资条目</h5>
-      <img src="{% static 'images/buy.jpeg' %}" align="center">
-      <br>
+      <h3>填写说明</h3><br />
+          1、	模板表中是月度计划的正确填写形式，请大家参考填写；红色部分为填报说明，请仔细查看，完成填写后请删除。<br />
+2、	表格中按照物资分类有办公用品、设备耗材、办公家具、五金杂品、劳动防护用品（新增）、化学试剂、实验耗材及小型设备，附件中有物资分类简表与劳动保护用品目录，请参考填写，若当月某种物资类别计划无，请删除sheet表。<br />
+3、	物资采购部计划岗接收月度计划最多每个月两张表：股份和集团。<br />
+4、	电子版采购计划表与处所领导签字盖章的扫描件请以邮件或即时通的形式传递（xuhn@petrochina.com.cn）或即时通（徐海宁），主题命名方式“月度计划+所全称+某年某月”及附件的命名方式“股份月度计划+所全称+某年某月”或“集团月度计划+所全称+某年某月”（股份月度计划+综合服务中心+2021年11月），比如10月填写的为11月计划。所领导签字盖章的采购计划表纸质版请各处所自存备查，如电子版与纸质版扫描件不符，以纸质版为准。<br />
+5、	物资材料计划应遵循“合理、够用”原则，符合科研生产需要；用户单位应做好物资采购计划中非科研活动占用科研项目经费的审核，如需采购请填写情况说明（使用人、地点、用途）。同时，请注意采购选物资时单个价格过高。<br />
+
+      </p>
   </div>
 </div>
 

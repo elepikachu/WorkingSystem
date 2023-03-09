@@ -111,6 +111,7 @@ body {
         }
     }
 </script>
+<script src="{% static 'js/chart.js' %}"></script>
 </head>
 <body>
 <form action="/buyitem/submit" method="post">
@@ -126,6 +127,7 @@ body {
   <a href="manage?page=1">管理模式</a>
   <a href="log">查看日志</a>
   <a href="suggestion"> 意见建议 </a>
+    <a href="info"> 填写说明 </a>
   <a href="/" class="right">返回主页</a>
 </div>
 
@@ -174,6 +176,7 @@ body {
               </datalist>
           数量：
           <input type="text" name="quantity" size="10" placeholder="物资采购数量"><br /><br />
+          <a href="#" id="nnn" onclick="show_chart()" size="5">查看物资分类表</a>
           物资分类：
           <select name="cif">
               <option>办公用品</option>
@@ -191,7 +194,9 @@ body {
           <br />
       </p>
       <input type="reset" name="res" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="submit" onclick="return confirm_submit()" name="sub" size="5">
+      <input type="submit" onclick="return confirm_submit()" name="sub" size="5"><br /><br />
+  <div id="tbl">
+  </div>
   </div>
 </div>
 

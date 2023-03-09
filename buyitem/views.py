@@ -34,11 +34,20 @@ def get_ip(request):
 
 # -------------------------------------------------------------
 # 函数名： project_view
-# 功能： 项目管理系统首页
+# 功能： 物资购买系统首页
 # -------------------------------------------------------------
 def buy_view(request):
     dic = {'ver': VERSION}
     return render(request, 'buyitem/buy.html', dic)
+
+
+# -------------------------------------------------------------
+# 函数名： info_view
+# 功能： 物资购买说明
+# -------------------------------------------------------------
+def info_view(request):
+    dic = {'ver': VERSION}
+    return render(request, 'buyitem/buynotice.html', dic)
 
 
 # -------------------------------------------------------------
@@ -259,7 +268,7 @@ def manage_view(request):
 def update_buy(request, item_id):
     try:
         item = Item.objects.get(id=item_id)
-
+        date = item.date.strftime('%Y-%m-%d')
     except Exception as e:
         print('--update error is %s' % e)
         return HttpResponse('--The project is not existed!!--')
@@ -270,7 +279,7 @@ def update_buy(request, item_id):
         if "upd" in request.POST:
             name = request.POST['name']
             group = request.POST['group']
-            tel = request.POST['phone']
+            phone = request.POST['phone']
             num = request.POST['num']
             good = request.POST['good']
             brand = request.POST['brand']
@@ -279,9 +288,10 @@ def update_buy(request, item_id):
             info = request.POST['info']
             detail = request.POST['detail']
             cif = request.POST['cif']
+            date = request.POST['date']
             #finish = request.POST['finish']
             item.name = name
-            item.tel = tel
+            item.phone = phone
             item.group = group
             item.num = num
             item.good = good
@@ -291,6 +301,7 @@ def update_buy(request, item_id):
             item.unit = unit
             item.classif = cif
             item.info = info
+            item.date = date
             #item.finish = finish
             item.save()
             if ItemLog.objects.exists():
