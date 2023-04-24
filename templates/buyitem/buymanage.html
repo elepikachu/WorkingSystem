@@ -137,18 +137,15 @@ body {
 
 <div class="navbar">
   <a href="/buyitem">应用首页</a>
-  <a href="submit">提交模式</a>
-  <a href="manage?page=1">管理模式</a>
-  <a href="log">查看日志</a>
-  <a href="suggestion"> 意见建议 </a>
-    <a href="info"> 填写说明 </a>
+  <a href="personal">返回个人管理模式</a>
   <a href="/" class="right">返回主页</a>
 </div>
 
 <div class="row">
   <div class="main">
-      <h3>{{ slo }}物资采购表</h3>
-      在过滤和打印表格之前请先选好条件哦： &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;提交时间范围：
+      <h3>{{ slo }}物资采购表 -- {{ cmmp }}</h3>
+      在过滤和打印表格之前请先选好条件哦： &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;提交时间选择(不选为全部)<input type="checkbox" name="timeselect">
+      &nbsp;&nbsp;范围：
       <input type="date" name="date1" value="{{ date1 }}" size="30"> ---
       <input type="date" name="date2" value="{{ date2 }}" size="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       所在部门：<select name="grp">
@@ -156,20 +153,25 @@ body {
               <option>{{ item }}</option>
           {% endfor %}
       </select>
+      股份/集团：<select name="cmp">
+          <option>股份</option>
+          <option>集团</option>
+      </select>
       完成情况：<select name="fin">
-              <option>未完成</option>
-      <option>已完成</option>
-      <option>全部</option>
+          <option>未完成</option>
+          <option>已完成</option>
+          <option>全部</option>
       </select><br /><br />
       <input type="submit" name="fit" value="条件过滤" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="submit" name="unfit" value="取消过滤" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="submit" name="pri" value="打印表格" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="submit" name="del" onclick="return password()" value="批量删除" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="submit" name="self" value="个人信息管理" size="5"><br /><br />
+      <br /><br />
 
     <table border="1">
         <tr>
             <th>id</th>
+            <th>公司</th>
             <th>商品名称</th>
             <th>品牌型号</th>
             <th>单位</th>
@@ -188,6 +190,7 @@ body {
         {% for item in c_page %}
             <tr>
                 <td>{{ item.id }}</td>
+                <td>{{ item.company }}</td>
                 <td>{{ item.good }}</td>
                 <td>{{ item.brand }}</td>
                 <td>{{ item.unit }}</td>

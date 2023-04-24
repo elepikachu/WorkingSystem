@@ -122,9 +122,12 @@ body {
 
 <div class="navbar">
   <a href="/buyitem">应用首页</a>
-  <a href="submit">提交模式</a>
-  <a href="manage?page=1">管理模式</a>
+  <a href="submit">提交模式-股份</a>
+    <a href="submit2">提交模式-集团</a>
+  <a href="personal">管理模式</a>
   <a href="log">查看日志</a>
+  <a href="suggestion"> 意见建议 </a>
+    <a href="info"> 填写说明 </a>
   <a href="/" class="right">返回主页</a>
 </div>
 
@@ -147,7 +150,11 @@ body {
                 <td><a href="http://{{ item.href }}" target="_blank">点击查看</a></td>
                 <td>{{ item.shop }}</td>
                 <td>
-                    <a href="/buyitem/submit?no={{ item.number }}&shop={{ item.shop }}&good={{ good }}">选我</a>
+                    {% if re == 1 %}
+                        <a href="/buyitem/submit?no={{ item.number }}&shop={{ item.shop }}&good={{ good }}">选我</a>
+                    {% else %}
+                        <a href="/buyitem/submit2?no={{ item.number }}&shop={{ item.shop }}&good={{ good }}">选我</a>
+                    {% endif %}
                 </td>
             </tr>
         {%  endfor %}
@@ -156,10 +163,10 @@ body {
   {% if lastpg == 0 %}
   上一页
   {% else %}
-  <a href="/buyitem/spider?good={{ good }}&pg={{ lastpg }}">上一页</a>
+  <a href="/buyitem/spider?good={{ good }}&pg={{ lastpg }}&re={{ re }}">上一页</a>
   {% endif %}
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="/buyitem/spider?good={{ good }}&pg={{ nextpg }}">下一页</a>
+  <a href="/buyitem/spider?good={{ good }}&pg={{ nextpg }}&re={{ re }}">下一页</a>
   </div>
 </div>
 

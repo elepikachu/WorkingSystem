@@ -158,18 +158,18 @@ body {
         var arrowr = document.querySelector('.arrowr');
         var focus = document.querySelector('.focus');
         // 鼠标经过显示箭头，移开隐藏
+        focus.addEventListener('mouseleave', function() {
+            arrowl.style.display = 'none';
+            arrowr.style.display = 'none';
+            timer = setInterval(function () {
+                arrowr.click();
+            }, 2000);
+        })
         focus.addEventListener('mouseenter', function() {
             arrowl.style.display = 'block';
             arrowr.style.display = 'block';
             clearInterval(timer);
             timer = null;
-        })
-        focus.addEventListener('mouseleave', function() {
-            arrowl.style.display = 'none';
-            arrowr.style.display = 'none';
-            var timer = setInterval(function () {
-                arrowr.click();
-            }, 2000);
         })
         // 动态生成小圆圈
         var ul = focus.querySelector('ul');
@@ -260,8 +260,8 @@ body {
   <div class="side">
       <h5>*****导航栏*****</h5>
       <a href="project">项目管理系统</a><br />
-      <a href="fuelcell">燃料电池介绍</a><br />
-      <a href="cheapp">化工计算器</a><br />
+      <a href="fuelcell">SOFC测试工具</a><br />
+      <a href="checal">化工计算器</a><br />
       <a href="food">随机选择器</a><br />
       <a href="info">使用说明</a><br />
       <a href="update">更新日志</a><br />
@@ -273,14 +273,14 @@ body {
           <a href="javascript:;" class="arrowl"> &lt; </a>
           <a href="javascript:;" class="arrowr"> &gt; </a>
       <ul>
-          <li><a href="javascript:;"><img src="{% static 'images/mainimage.jpg' %}" width="1200px" height="500px" align="center"></a></li>
-          <li><a href="javascript:;"><img src="{% static 'images/cnpc.png' %}" width="1200px" height="500px" align="center"></a></li>
-          <li><a href="javascript:;"><img src="{% static 'images/yuri.jpg' %}" width="1200px" height="500px" align="center"></a></li>
+          <li><a href="javascript:;"><img src="{% static 'images/mainimage.jpg' %}" width="1264px" height="500px" align="center"></a></li>
+          <li><a href="javascript:;"><img src="{% static 'images/cnpc.png' %}" width="1302px" height="500px" align="center"></a></li>
+          <li><a href="javascript:;"><img src="{% static 'images/cheme.jpeg' %}" width="1302px" height="500px" align="center"></a></li>
       </ul>
           <ol class="circle">
           {# js动态生成小圆圈 #}
           </ol>
-          </div>
+      </div>
   </div>
 </div>
 

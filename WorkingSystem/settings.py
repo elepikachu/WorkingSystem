@@ -39,9 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'project',
-    'fuelcell',
+    'checal',
     'buyitem',
-    'cheapp',
+    'fuelcell',
 ]
 
 MIDDLEWARE = [
@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'elepikachu',
         'USER': 'root',
         'PASSWORD': '123456',
-        'HOST': '10.122.176.4',
+        'HOST': 'localhost',
         'PORT': '3306'
     }
 }

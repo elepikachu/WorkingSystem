@@ -97,6 +97,32 @@ body {
     }
 }
 </style>
+    <script>
+        function password2(id) {
+        var passw = prompt("该操作需要输入管理员密码，默认密码 666666");
+        if (!passw) {
+            alert("没有输入");
+        }
+        if (passw === "666666") {
+            window.location.href="/buyitem/finish/" + id;
+        }
+        else {
+            alert("密码错误，请重新输入");
+        }
+    }
+    function password3(id) {
+        var passw = prompt("该操作需要输入管理员密码，默认密码 666666");
+        if (!passw) {
+            alert("没有输入");
+        }
+        if (passw === "666666") {
+            window.location.href="/buyitem/unfinish/" + id;
+        }
+        else {
+            alert("密码错误，请重新输入");
+        }
+    }
+    </script>
 </head>
 <body>
 <form action="/buyitem/personal" method="post">
@@ -108,78 +134,120 @@ body {
 
 <div class="navbar">
   <a href="/buyitem">应用首页</a>
-  <a href="manage?page=1">返回管理模式</a>
+  <a href="submit">提交模式-股份</a>
+    <a href="submit2">提交模式-集团</a>
+  <a href="personal">管理模式</a>
+  <a href="log">查看日志</a>
+  <a href="suggestion"> 意见建议 </a>
+  <a href="info"> 填写说明 </a>
   <a href="/" class="right">返回主页</a>
 </div>
 
 <div class="row">
   <div class="main">
       <h3>欢迎，{{ psn }}!&nbsp;您当前共有&nbsp;{{ length }}&nbsp;个物品待购买&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="submit" name="ret" value="我不是{{ psn }}?" size="5"></h3>
+      <input type="submit" name="ret" value="我不是{{ psn }}?" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" name="every" value="全员信息管理" size="5"></h3>
+      提交时间选择(不选为全部)<input type="checkbox" name="timeselect">
+      &nbsp;&nbsp;范围：
+      <input type="date" name="date1" value="{{ date1 }}" size="30"> ---
+      <input type="date" name="date2" value="{{ date2 }}" size="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      股份/集团：<select name="cmp">
+          <option>股份</option>
+          <option>集团</option>
+      </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="submit" name="prt1" value="打印待购买" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="submit" name="prt2" value="打印全部" size="5">
       <h5>未完成项目</h5>
 <table border="1">
         <tr>
             <th>id</th>
-            <th>完成人</th>
-            <th>项目组</th>
-            <th>项目名称</th>
-            <th>开始时间</th>
-            <th>计划完成</th>
-            <th>计划类别</th>
-            <th>项目进展</th>
-            <th>物资分类</th>
+            <th>公司</th>
+            <th>商品名称</th>
+            <th>品牌型号</th>
+            <th>单位</th>
+            <th>数量</th>
+            <th>购买人</th>
+            <th>联系电话</th>
+            <th>课题编号</th>
+            <th>采购说明</th>
             <th>备注</th>
+            <th>采购单位</th>
+            <th>物资分类</th>
+            <th>提交日期</th>
+            <th>进展</th>
             <th>操作</th>
         </tr>
         {% for item in unfinished %}
             <tr>
                 <td>{{ item.id }}</td>
-                <td>{{ item.person }}</td>
-                <td>{{ item.group }}</td>
+                <td>{{ item.company }}</td>
+                <td>{{ item.good }}</td>
+                <td>{{ item.brand }}</td>
+                <td>{{ item.unit }}</td>
+                <td>{{ item.quantity }}</td>
                 <td>{{ item.name }}</td>
-                <td>{{ item.date }}</td>
-                <td>{{ item.enddate }}</td>
-                <td>{{ item.classification }}</td>
-                <td>{{ item.finish }}</td>
-                <td>{{ item.calssif }}</td>
+                <td>{{ item.phone }}</td>
+                <td>{{ item.num }}</td>
+                <td>{{ item.info }}</td>
                 <td>{{ item.detail }}</td>
+                <td>{{ item.group }}</td>
+                <td>{{ item.classif }}</td>
+                <td>{{ item.date }}</td>
+                <td>{{ item.finish }}</td>
                 <td>
                     <a href="/buyitem/update/{{ item.id }}">更新行</a>
                     <a href="/buyitem/delete/{{ item.id }}">删除行</a>
+                    {% if item.finish != True %}
+                    <a href="javascript:password2({{ item.id }});">购买完成</a>
+                    {% endif %}
                 </td>
             </tr>
         {%  endfor %}
     </table>
   <h5>已完成项目</h5>
-  <table border="1">
+ <table border="1">
         <tr>
             <th>id</th>
-            <th>完成人</th>
-            <th>项目组</th>
-            <th>项目名称</th>
-            <th>开始时间</th>
-            <th>计划完成</th>
-            <th>计划类别</th>
-            <th>项目进展</th>
+            <th>公司</th>
+            <th>商品名称</th>
+            <th>品牌型号</th>
+            <th>单位</th>
+            <th>数量</th>
+            <th>购买人</th>
+            <th>联系电话</th>
+            <th>课题编号</th>
+            <th>采购说明</th>
             <th>备注</th>
+            <th>采购单位</th>
+            <th>物资分类</th>
+            <th>提交日期</th>
+            <th>进展</th>
             <th>操作</th>
         </tr>
         {% for item in finished %}
             <tr>
                 <td>{{ item.id }}</td>
-                <td>{{ item.person }}</td>
-                <td>{{ item.group }}</td>
+                <td>{{ item.company }}</td>
+                <td>{{ item.good }}</td>
+                <td>{{ item.brand }}</td>
+                <td>{{ item.unit }}</td>
+                <td>{{ item.quantity }}</td>
                 <td>{{ item.name }}</td>
-                <td>{{ item.date }}</td>
-                <td>{{ item.enddate }}</td>
-                <td>{{ item.classification }}</td>
-                <td>{{ item.finish }}%</td>
+                <td>{{ item.phone }}</td>
+                <td>{{ item.num }}</td>
+                <td>{{ item.info }}</td>
                 <td>{{ item.detail }}</td>
+                <td>{{ item.group }}</td>
+                <td>{{ item.classif }}</td>
+                <td>{{ item.date }}</td>
+                <td>{{ item.finish }}</td>
                 <td>
                     <a href="/buyitem/update/{{ item.id }}">更新行</a>
                     <a href="/buyitem/delete/{{ item.id }}">删除行</a>
+                    {% if item.finish == True %}
+                    <a href="javascript:password3({{ item.id }});">未完成</a>
+                    {% endif %}
                 </td>
             </tr>
         {%  endfor %}

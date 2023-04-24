@@ -14,6 +14,7 @@ class Item(models.Model):
     detail = models.CharField('商品编号', max_length=100, default='')
     group = models.CharField('单位全称', max_length=50, default='')
     classif = models.CharField('物资分类', max_length=30, default='')
+    company = models.CharField('公司', max_length=50, default='')
     date = models.DateField('提交日期')
     finish = models.BooleanField('是否完成', default=0)
 

@@ -25,8 +25,8 @@ urlpatterns = [
     path('info', views.info_view),
     path('food', views.food_view),
     path('project/', include('project.urls')),
-    path('fuelcell/', include('fuelcell.urls')),
+    path('checal/', include('checal.urls')),
     path('buyitem/', include('buyitem.urls')),
-    path('cheapp/', include('cheapp.urls')),
+    path('fuelcell/', include('fuelcell.urls')),
     path('robots.txt', views.robots_txt),
 ]

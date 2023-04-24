@@ -2,7 +2,7 @@
 {% load static %}
 <html>
 <head>
-<title>{{ ver }}-SOFC测试</title>
+<title>{{ ver }}-首页</title>
 <link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -100,49 +100,22 @@ body {
 <body>
 
 <div class="header">
-  <h1>{{ ver }}-SOFC测试</h1>
+  <h1>{{ ver }}-首页</h1>
   <p>Welcome to elepikachu's tool site</p>
 </div>
 
 <div class="navbar">
-  <a href="/cheapp">应用首页</a>
+  <a href="/fuelcell">应用首页</a>
   <a href="test">SOFC测试</a>
   <a href="/" class="right">返回主页</a>
 </div>
 
 <div class="row">
   <div class="main">
-      <h2>请选择您要操作的的测试组，或新建测试组</h2>
-      <a href="test/add">新建测试组</a>
-       <table border="1">
-        <tr>
-            <th>id</th>
-            <th>组号</th>
-            <th>实验温度</th>
-            <th>实验压力</th>
-            <th>电池数</th>
-            <th>气体名</th>
-            <th>操作</th>
-        </tr>
-        {% for item in all_data %}
-            <tr>
-                <td>{{ item.id }}</td>
-                <td>{{ item.grp }}</td>
-                <td>{{ item.tmp }}</td>
-                <td>{{ item.prs }}</td>
-                <td>{{ item.ns }}</td>
-                <td>{{ item.gas }}</td>
-                <td>
-                    <a href="/cheapp/test/{{ item.id }}">进入测试组</a>
-                    <a href="/buyitem/test/update/{{ item.id }}">编辑测试组</a>
-                    <a href="/buyitem/test/delete/{{ item.id }}">删除测试组</a>
-                    {% if item.finish != True %}
-                    <a href="javascript:password2({{ item.id }});">购买完成</a>
-                    {% endif %}
-                </td>
-            </tr>
-        {%  endfor %}
-    </table>
+      <h2>欢迎使用SOFC测试工具</h2>
+      <h5>Thanks for using calculator for SOFC system</h5>
+      <img src="{% static 'images/cheme.jpeg' %}" align="center">
+
       <br>
   </div>
 </div>

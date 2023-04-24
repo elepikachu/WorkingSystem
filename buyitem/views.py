@@ -72,7 +72,7 @@ def suggest_view(request):
 
 # -------------------------------------------------------------
 # 函数名： submit_view
-# 功能： 提交模式
+# 功能： 提交模式-股份
 # -------------------------------------------------------------
 def submit_view(request):
     if request.method == 'GET':
@@ -80,11 +80,14 @@ def submit_view(request):
             psn = request.COOKIES.get('name', '')
             psn = json.loads(psn)
             grp = request.COOKIES.get('group', '')
-            grp = json.loads(grp)
+            if grp != '':
+                grp = json.loads(grp)
             tel = request.COOKIES.get('tel', '')
-            tel = json.loads(tel)
+            if tel != '':
+                tel = json.loads(tel)
             num = request.COOKIES.get('num', '')
-            num = json.loads(num)
+            if num != '':
+                num = json.loads(num)
         else:
             psn = ''
             grp = ''
@@ -120,14 +123,14 @@ def submit_view(request):
             else:
                 id = 1
             Item.objects.create(id=id, name=name, phone=tel, group=group, num=num, unit=unit, date=datetime.datetime.today(),
-                                detail=detail, quantity=quantity, brand=brand, info=info, finish=0, good=good, classif=cif)
+                                detail=detail, quantity=quantity, brand=brand, info=info, finish=0, good=good, classif=cif, company='股份')
             if ItemLog.objects.exists():
                 idx = ItemLog.objects.latest('id').id
             else:
                 idx = 0
             ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='insert',
                                    other='%s-%s-%s-%s' % (name, good, num, 'false'))
-            res = HttpResponseRedirect('/buyitem/manage?page=1')
+            res = HttpResponseRedirect('/buyitem/personal')
             name = json.dumps(name)
             group = json.dumps(group)
             tel = json.dumps(tel)
@@ -141,7 +144,94 @@ def submit_view(request):
         elif 'spd' in request.POST:
             if request.POST['good'] == '':
                 return HttpResponse('商品为空')
-            rep = HttpResponseRedirect('/buyitem/spider?good=%s&pg=1' % request.POST['good'])
+            rep = HttpResponseRedirect('/buyitem/spider?good=%s&pg=1&re=1' % request.POST['good'])
+            if request.COOKIES.get('name') == '':
+                name = request.POST['name']
+                group = request.POST['group']
+                tel = request.POST['phone']
+                num = request.POST['num']
+                rep.set_cookie(key='name', value=name, max_age=3600 * 24 * 30)
+                rep.set_cookie(key='group', value=group, max_age=3600 * 24 * 30)
+                rep.set_cookie(key='tel', value=tel, max_age=3600 * 24 * 30)
+                rep.set_cookie(key='num', value=num, max_age=3600 * 24 * 30)
+            return rep
+
+
+# -------------------------------------------------------------
+# 函数名： submit2_view
+# 功能： 提交模式-集团
+# -------------------------------------------------------------
+def submit2_view(request):
+    if request.method == 'GET':
+        if request.COOKIES.get('name', '') != '':
+            psn = request.COOKIES.get('name', '')
+            psn = json.loads(psn)
+            grp = request.COOKIES.get('group', '')
+            if grp != '':
+                grp = json.loads(grp)
+            tel = request.COOKIES.get('tel', '')
+            if tel != '':
+                tel = json.loads(tel)
+            num = request.COOKIES.get('num', '')
+            if num != '':
+                num = json.loads(num)
+        else:
+            psn = ''
+            grp = ''
+            tel = ''
+            num = ''
+        if 'good' in request.GET:
+            god = request.GET['good']
+            no = request.GET['no']
+            shp = request.GET['shop']
+            if no != '':
+                no = '商品编号：' + no
+        else:
+            god = ''
+            no = ''
+            shp = ''
+        dic = {'ver': VERSION, 'psn': psn, 'grp': grp, 'tel': tel, 'num': num, 'god': god, 'no': no, 'shp': shp}
+        return render(request, 'buyitem/buysubmit2.html', dic)
+    elif request.method == 'POST':
+        if 'sub' in request.POST:
+            name = request.POST['name']
+            group = request.POST['group']
+            tel = request.POST['phone']
+            num = request.POST['num']
+            good = request.POST['good']
+            brand = request.POST['brand']
+            quantity = request.POST['quantity']
+            unit = request.POST['unit']
+            info = request.POST['info']
+            cif = request.POST['cif']
+            detail = request.POST['detail']
+            if Item.objects.exists():
+                id = Item.objects.latest('id').id + 1
+            else:
+                id = 1
+            Item.objects.create(id=id, name=name, phone=tel, group=group, num=num, unit=unit, date=datetime.datetime.today(),
+                                detail=detail, quantity=quantity, brand=brand, info=info, finish=0, good=good, classif=cif, company='集团')
+            if ItemLog.objects.exists():
+                idx = ItemLog.objects.latest('id').id
+            else:
+                idx = 0
+            ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='insert',
+                                   other='%s-%s-%s-%s' % (name, good, num, 'false'))
+            res = HttpResponseRedirect('/buyitem/personal')
+            name = json.dumps(name)
+            group = json.dumps(group)
+            tel = json.dumps(tel)
+            num = json.dumps(num)
+
+            res.set_cookie(key='name', value=name, max_age=3600 * 24 * 30)
+            res.set_cookie(key='group', value=group, max_age=3600 * 24 * 30)
+            res.set_cookie(key='tel', value=tel, max_age=3600 * 24 * 30)
+            res.set_cookie(key='num', value=num, max_age=3600 * 24 * 30)
+            return res
+        elif 'spd' in request.POST:
+            if request.POST['good'] == '':
+                return HttpResponse('商品为空')
+            rep = HttpResponseRedirect('/buyitem/spider?good=%s&pg=1&re=2' % request.POST['good'])
             if request.COOKIES.get('name') == '':
                 name = request.POST['name']
                 group = request.POST['group']
@@ -161,9 +251,10 @@ def submit_view(request):
 def spider_view(request):
     page = request.GET['pg']
     good = request.GET['good']
+    re = request.GET['re']
     res = parse_page(good, page)
     page = int(page)
-    dic = {'ver': VERSION, 'res': res, 'good': good, 'lastpg': page-1, 'nextpg': page+1}
+    dic = {'ver': VERSION, 'res': res, 'good': good, 'lastpg': page-1, 'nextpg': page+1, 're':re}
     return render(request, 'buyitem/buyspider.html', dic)
 
 
@@ -174,24 +265,38 @@ def spider_view(request):
 def manage_view(request):
     if request.method == 'GET':
         if 'grp' in request.GET:
-            if request.GET['grp'] is "全部" and request.GET['fin'] is 2 or '2':
-                all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'])
-            elif request.GET['fin'] is 2 or '2':
-                all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], group__exact=request.GET['grp'])
-            elif request.GET['grp'] is "全部":
-                all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], finish__exact=request.GET['fin'])
+            if 'st' not in request.GET:
+                if (request.GET['grp'] == "全部") and (request.GET['fin'] == '2'):
+                    all_data = Item.objects.all().order_by('-date')
+                elif request.GET['fin'] == '2':
+                    all_data = Item.objects.filter(group__exact=request.GET['grp'], company__exact=request.GET['cmp']).order_by('-id')
+                elif request.GET['grp'] == "全部":
+                    all_data = Item.objects.filter(finish__exact=request.GET['fin'], company__exact=request.GET['cmp']).order_by('-id')
+                else:
+                    all_data = Item.objects.filter(finish__exact=request.GET['fin'], group__exact=request.GET['grp'], company__exact=request.GET['cmp']).order_by('-id')
             else:
-                all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], finish__exact=request.GET['fin'], group__exact=request.GET['grp'])
-            if request.GET['fin'] == 0:
+                if (request.GET['grp'] == "全部") and (request.GET['fin'] == '2'):
+                    all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], company__exact=request.GET['cmp']).order_by('-id')
+                elif request.GET['fin'] == '2':
+                    all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], group__exact=request.GET['grp'], company__exact=request.GET['cmp']).order_by('-id')
+                elif request.GET['grp'] == "全部":
+                    all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], finish__exact=request.GET['fin'], company__exact=request.GET['cmp']).order_by('-id')
+                else:
+                    all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], finish__exact=request.GET['fin'], group__exact=request.GET['grp'], company__exact=request.GET['cmp']).order_by('-id')
+            if request.GET['fin'] == '0':
                 slo = "未完成"
-            elif request.GET['fin'] == 1:
+            elif request.GET['fin'] == '1':
                 slo = "已完成"
             else:
                 slo = ""
         else:
-            all_data = Item.objects.filter(finish__exact=False)
+            all_data = Item.objects.filter(finish__exact=0)
             all_data = all_data[::-1]
             slo = "未完成"
+        if 'cmp' in request.GET:
+            cmmp = request.GET['cmp']
+        else:
+            cmmp = '全部'
         page_num = request.GET.get('page', 1)
         paginator = Paginator(all_data, 30)
         c_page = paginator.page(int(page_num))
@@ -209,56 +314,97 @@ def manage_view(request):
     elif request.method == 'POST':
         if 'del' in request.POST:
             return HttpResponseRedirect('/buyitem/batch')
-        if 'self' in request.POST:
-            return HttpResponseRedirect('/buyitem/personal')
         if 'pri' in request.POST:
             mon = (datetime.datetime.today()).strftime("%m")
             mon = str(int(mon) + 1)
-            if request.POST['grp'] == "全部" and request.POST['fin'] == "全部":
-                all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'])
-                name = f'物资采购信息-全.xlsx'
-                ofc = False
-            elif request.POST['fin'] == "全部":
-                all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
-                                                  group__exact=request.POST['grp'])
-                name = f'物资采购信息-全-%s.xlsx' % request.POST['grp']
-                ofc = True
-            elif request.POST['grp'] == "全部":
-                if request.POST['fin'] == "未完成":
-                    fin = 0
-                    name = f'股份月度计划-%s月.xlsx' % mon
-                elif request.POST['fin'] == "已完成":
-                    fin = 1
-                    name = f'物资采购信息-已完成.xlsx'
-                all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
-                                               finish__exact=fin)
-                ofc = False
+            if 'timeselect' in request.POST:
+                if request.POST['grp'] == "全部" and request.POST['fin'] == "全部":
+                    all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'], company__exact=request.POST['cmp'])
+                    name = f'%s物资采购信息-全部.xlsx' % request.POST['cmp']
+                    ofc = False
+                elif request.POST['fin'] == "全部":
+                    all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
+                                                      group__exact=request.POST['grp'], company__exact=request.POST['cmp'])
+                    name = f'%s物资采购信息-全部-%s.xlsx' % (request.POST['cmp'], request.POST['grp'])
+                    ofc = True
+                elif request.POST['grp'] == "全部":
+                    if request.POST['fin'] == "未完成":
+                        fin = 0
+                        name = f'%s月度计划-%s月.xlsx' % (request.POST['cmp'], mon)
+                    elif request.POST['fin'] == "已完成":
+                        fin = 1
+                        name = f'%s物资采购信息-已完成.xlsx' % request.POST['cmp']
+                    all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
+                                                   finish__exact=fin, company__exact=request.POST['cmp'])
+                    ofc = False
+                else:
+                    if request.POST['fin'] == "未完成":
+                        fin = 0
+                        name = f'%s月度计划-%s月-%s.xlsx' % (request.POST['cmp'], mon, request.POST['grp'])
+                    elif request.POST['fin'] == "已完成":
+                        fin = 1
+                        name = f'%s物资采购信息-已完成-%s.xlsx' % (request.POST['cmp'], request.POST['grp'])
+                    all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
+                                                   finish__exact=fin, group__exact=request.POST['grp'], company__exact=request.POST['cmp'])
+                    ofc = True
             else:
-                if request.POST['fin'] == "未完成":
-                    fin = 0
-                    name = f'股份月度计划-%s月-%s.xlsx' % (mon, request.POST['grp'])
-                elif request.POST['fin'] == "已完成":
-                    fin = 1
-                    name = f'物资采购信息-已完成-%s.xlsx' % request.POST['grp']
-                all_data = Item.objects.filter(date__gte=request.POST['date1'], date__lte=request.POST['date2'],
-                                               finish__exact=fin, group__exact=request.POST['grp'])
-                ofc = True
+                if request.POST['grp'] == "全部" and request.POST['fin'] == "全部":
+                    all_data = Item.objects.filter(company__exact=request.POST['cmp'])
+                    name = f'%s物资采购信息-全部.xlsx' % request.POST['cmp']
+                    ofc = False
+                elif request.POST['fin'] == "全部":
+                    all_data = Item.objects.filter(group__exact=request.POST['grp'], company__exact=request.POST['cmp'])
+                    name = f'%s物资采购信息-全部-%s.xlsx' % (request.POST['cmp'], request.POST['grp'])
+                    ofc = True
+                elif request.POST['grp'] == "全部":
+                    if request.POST['fin'] == "未完成":
+                        fin = 0
+                        name = f'%s月度计划-%s月.xlsx' % (request.POST['cmp'], mon)
+                    elif request.POST['fin'] == "已完成":
+                        fin = 1
+                        name = f'%s物资采购信息-已完成.xlsx' % request.POST['cmp']
+                    all_data = Item.objects.filter(finish__exact=fin, company__exact=request.POST['cmp'])
+                    ofc = False
+                else:
+                    if request.POST['fin'] == "未完成":
+                        fin = 0
+                        name = f'%s月度计划-%s月-%s.xlsx' % (request.POST['cmp'], mon, request.POST['grp'])
+                    elif request.POST['fin'] == "已完成":
+                        fin = 1
+                        name = f'%s物资采购信息-已完成-%s.xlsx' % (request.POST['cmp'], request.POST['grp'])
+                    all_data = Item.objects.filter(finish__exact=fin, group__exact=request.POST['grp'], company__exact=request.POST['cmp'])
+                    ofc = True
             data_list = all_data.values_list()
-            response = create_excel(data_list, name, ofc, request)
+            if len(data_list) == 0:
+                return HttpResponse('没有数据哦，无法打印嘤嘤嘤')
+            response = create_excel(data_list, name, ofc, request, request.POST['cmp'])
             return response
         if 'unfit' in request.POST:
             return HttpResponseRedirect('/buyitem/manage?page=1')
         if 'fit' in request.POST:
+            if 'timeselect' not in request.POST:
+                grp = request.POST['grp']
+                fin = 2
+                cmp = request.POST['cmp']
+                if request.POST['fin'] == "全部":
+                    fin = 2
+                elif request.POST['fin'] == "未完成":
+                    fin = 0
+                elif request.POST['fin'] == "已完成":
+                    fin = 1
+                return HttpResponseRedirect('/buyitem/manage?page=1&grp=%s&fin=%d&cmp=%s' % (grp, fin, cmp))
             st = request.POST['date1']
             et = request.POST['date2']
             grp = request.POST['grp']
+            fin = 2
+            cmp = request.POST['cmp']
             if request.POST['fin'] == "全部":
                 fin = 2
             elif request.POST['fin'] == "未完成":
                 fin = 0
             elif request.POST['fin'] == "已完成":
                 fin = 1
-            return HttpResponseRedirect('/buyitem/manage?page=1&st=%s&et=%s&grp=%s&fin=%d' % (st, et, grp, fin))
+            return HttpResponseRedirect('/buyitem/manage?page=1&st=%s&et=%s&grp=%s&fin=%d&cmp=%s' % (st, et, grp, fin, cmp))
 
 
 # -------------------------------------------------------------
@@ -289,6 +435,7 @@ def update_buy(request, item_id):
             detail = request.POST['detail']
             cif = request.POST['cif']
             date = request.POST['date']
+            company = request.POST['cmp']
             #finish = request.POST['finish']
             item.name = name
             item.phone = phone
@@ -302,6 +449,7 @@ def update_buy(request, item_id):
             item.classif = cif
             item.info = info
             item.date = date
+            item.company = company
             #item.finish = finish
             item.save()
             if ItemLog.objects.exists():
@@ -334,7 +482,31 @@ def finish_buy(request, item_id):
             idx = 0
         ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='finish',
                                other='%s-%s' % (name, good))
-        return HttpResponseRedirect('/buyitem/manage?page=1')
+        return HttpResponseRedirect('/buyitem/personal')
+    except Exception as e:
+        print('--delete error is %s' % e)
+        return HttpResponse('--更新失败，请稍后再试!!--')
+
+# -------------------------------------------------------------
+# 函数名： finish_buy
+# 功能： 数据行完成
+# -------------------------------------------------------------
+def unfinish_buy(request, item_id):
+    try:
+        item = Item.objects.get(id=item_id)
+        if item.finish != True:
+            return HttpResponse('--操作失败，该条购买还没有完成呐!!--')
+        item.finish = False
+        item.save()
+        name = item.name
+        good = item.good
+        if ItemLog.objects.exists():
+            idx = ItemLog.objects.latest('id').id
+        else:
+            idx = 0
+        ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='unfinish',
+                               other='%s-%s' % (name, good))
+        return HttpResponseRedirect('/buyitem/personal')
     except Exception as e:
         print('--delete error is %s' % e)
         return HttpResponse('--更新失败，请稍后再试!!--')
@@ -441,6 +613,10 @@ def personal_view(request):
             length = len(unfinished)
             finished = Item.objects.filter(name__exact=psn, finish__exact=True)
             finished = finished[::-1]
+            date = datetime.date.today()
+            datee = date - datetime.timedelta(weeks=4)
+            date1 = datee.strftime('%Y-%m-%d')
+            date2 = date.strftime('%Y-%m-%d')
             return render(request, 'buyitem/buyself.html', locals())
         else:
             namebox = []
@@ -462,23 +638,37 @@ def personal_view(request):
         if 'prt1' in request.POST:
             psn = request.COOKIES.get('name', '')
             psn = json.loads(psn)
-            all_data = Item.objects.filter(name__exact=psn, finish__exact=0)
+            cmp = request.POST['cmp']
+            if 'timeselect' in request.POST:
+                all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], name__exact=psn, finish__exact=0, company__exact=request.POST['cmp'])
+            else:
+                all_data = Item.objects.filter(name__exact=psn, finish__exact=0, company__exact=cmp)
             data_list = all_data.values_list()
+            if len(data_list) == 0:
+                return HttpResponse('没有数据哦，无法打印嘤嘤嘤')
             mon = (datetime.datetime.today()).strftime("%m")
-            mon = str(int(mon) + 1)
-            name = f'股份月度计划-%s月-%s.xlsx' % (mon, psn)
-            response = create_excel(data_list, name, True, request)
+            mon = str(int(mon))
+            name = f'%s月度计划-%s月-%s.xlsx' % (cmp, mon, psn)
+            response = create_excel(data_list, name, True, request, cmp)
             return response
         if 'prt2' in request.POST:
             psn = request.COOKIES.get('name', '')
             psn = json.loads(psn)
-            all_data = Item.objects.filter(name__exact=psn)
+            cmp = request.POST['cmp']
+            if 'timeselect' in request.POST:
+                all_data = Item.objects.filter(date__gte=request.GET['st'], date__lte=request.GET['et'], name__exact=psn, company__exact=cmp)
+            else:
+                all_data = Item.objects.filter(name__exact=psn, company__exact=request.POST['cmp'])
             data_list = all_data.values_list()
+            if len(data_list) == 0:
+                return HttpResponse('没有数据哦，无法打印嘤嘤嘤')
             mon = (datetime.datetime.today()).strftime("%m")
-            mon = str(int(mon) + 1)
-            name = f'股份月度计划-%s月-%s.xlsx' % (mon, psn)
-            response = create_excel(data_list, name, True, request)
+            mon = str(int(mon))
+            name = f'%s月度计划-%s月-%s.xlsx' % (cmp, mon, psn)
+            response = create_excel(data_list, name, True, request, cmp)
             return response
+        if 'every' in request.POST:
+            return HttpResponseRedirect('/buyitem/manage?page=1')
 
 
 # -------------------------------------------------------------
@@ -517,22 +707,22 @@ def excel_style(x):
 # 函数名： create_excel
 # 功能： 生成excel
 # -------------------------------------------------------------
-def create_excel(data_list, name, office, request):
+def create_excel(data_list, name, office, request, cmp):
 
     rawdata = pd.DataFrame(data_list)
-    rawdata.columns = ['序号', '商品名称', '品牌型号', '单位', '数量', '姓名', '电话', '课题编号', '采购说明', '备注', '11', '12', '13', '14']
+    rawdata.columns = ['序号', '商品名称', '品牌型号', '单位', '数量', '姓名', '电话', '课题编号', '采购说明', '备注', '11', '12', '13', '14', '15']
     #rawdata['备注'] = "商品编号: " + rawdata["备注"]
 
     output = BytesIO()  # 转二进制流
     writer = pd.ExcelWriter(output, engine='openpyxl')
-    writer = print_excel(writer, '股份-办公用品采购', '办公用品', rawdata, office)
-    writer = print_excel(writer, '股份-设备耗材采购', '设备耗材', rawdata, office)
-    writer = print_excel(writer, '股份-办公家具', '办公家具', rawdata, office)
-    writer = print_excel(writer, '股份-五金杂品采购', '五金杂品', rawdata, office)
-    writer = print_excel(writer, '股份-劳动防护用品', '劳动防护', rawdata, office)
-    writer = print_excel(writer, '股份-实验耗材及小型设备', '实验耗材及小型设备', rawdata, office)
+    writer = print_excel(writer, '股份-办公用品采购', '办公用品', rawdata, office, cmp)
+    writer = print_excel(writer, '股份-设备耗材采购', '设备耗材', rawdata, office, cmp)
+    writer = print_excel(writer, '股份-办公家具', '办公家具', rawdata, office, cmp)
+    writer = print_excel(writer, '股份-五金杂品采购', '五金杂品', rawdata, office, cmp)
+    writer = print_excel(writer, '股份-劳动防护用品', '劳动防护', rawdata, office, cmp)
+    writer = print_excel(writer, '股份-实验耗材及小型设备', '实验耗材及小型设备', rawdata, office, cmp)
 
-    writer.save()
+    writer.close()
     output.seek(0)  # 重新定位到开始
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = "attachment;filename=%s" % escape_uri_path(name)
@@ -545,17 +735,16 @@ def create_excel(data_list, name, office, request):
     ItemLog.objects.create(id=idx + 1, ip=get_ip(request), date=datetime.datetime.today(), cmd='print',
                            other='chart')
     return response
-    return response
 
 
 # -------------------------------------------------------------
 # 函数名： print_excel
 # 功能： 按类别把数据输出到excel
 # -------------------------------------------------------------
-def print_excel(writer, word, wd, rawdata, of):
+def print_excel(writer, word, wd, rawdata, of, cmp):
     data = rawdata[rawdata['12'] == wd]
     if not data.empty:
-        data = data.drop(['11', '12', '13', '14'], axis=1)
+        data = data.drop(['11', '12', '13', '14', '15'], axis=1)
         data.style.apply(excel_style, axis=0).to_excel(writer, sheet_name=word, index=False, startrow=3)
 
         column_wid = (data.columns.to_series().apply(lambda x: len(x.encode('gbk'))).values)
@@ -573,8 +762,11 @@ def print_excel(writer, word, wd, rawdata, of):
 
     worksheet = writer.sheets[word]
     mon = (datetime.datetime.today()).strftime("%m")
-    mon = str(int(mon) + 1)
-    worksheet.cell(row=1, column=1).value = '            中国石油勘探开发研究院采购计划表(' + mon + '月)'
+    mon = str(int(mon))
+    if cmp == 0:
+        worksheet.cell(row=1, column=1).value = '            中国石油勘探开发研究院采购计划表(' + mon + '月)'
+    else:
+        worksheet.cell(row=1, column=1).value = '       中国石油集团科学技术研究院有限公司采购计划表(' + mon + '月)'
     worksheet['A1'].font = Font(size=20, bold=True)
     worksheet.cell(row=2, column=1).value = '表单号：NKZ0400-01'
     worksheet['A2'].font = Font(size=12, bold=True)

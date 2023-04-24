@@ -2,7 +2,7 @@
 {% load static %}
 <html>
 <head>
-<title>{{ ver }}-提交模式（股份公司）</title>
+<title>{{ ver }}-提交模式（集团公司）</title>
 <link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -114,10 +114,10 @@ body {
 <script src="{% static 'js/chart.js' %}"></script>
 </head>
 <body>
-<form action="/buyitem/submit" method="post">
+<form action="/buyitem/submit2" method="post">
 {% csrf_token %}
 <div class="header">
-  <h1>{{ ver }}-提交模式 (股份公司)</h1>
+  <h1>{{ ver }}-提交模式 (集团公司)</h1>
   <p>Welcome to elepikachu's tool site</p>
 </div>
 
