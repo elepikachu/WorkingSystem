@@ -5,6 +5,7 @@ from .models import Item, ItemLog, Suggestion
 from django.core.paginator import Paginator
 from django.shortcuts import render
 from openpyxl.styles import Font
+from selenium import webdriver
 from bs4 import BeautifulSoup
 from io import BytesIO
 
@@ -16,7 +17,7 @@ import requests
 import json
 
 
-VERSION = '物资采购系统 1.0.0'
+VERSION = '物资采购计划填报系统 1.0.0'
 
 
 # -------------------------------------------------------------
@@ -97,8 +98,9 @@ def submit_view(request):
             god = request.GET['good']
             no = request.GET['no']
             shp = request.GET['shop']
+            pr = request.GET['pr']
             if no != '':
-                no = '商品编号：' + no
+                no = '商品编号：' + no + ', 价格' + pr
         else:
             god = ''
             no = ''
@@ -145,14 +147,21 @@ def submit_view(request):
             if request.POST['good'] == '':
                 return HttpResponse('商品为空')
             rep = HttpResponseRedirect('/buyitem/spider?good=%s&pg=1&re=1' % request.POST['good'])
-            if request.COOKIES.get('name') == '':
+            if 'name' in request.POST:
                 name = request.POST['name']
-                group = request.POST['group']
-                tel = request.POST['phone']
-                num = request.POST['num']
+                name = json.dumps(name)
                 rep.set_cookie(key='name', value=name, max_age=3600 * 24 * 30)
+            if 'group' in request.POST:
+                group = request.POST['group']
+                group = json.dumps(group)
                 rep.set_cookie(key='group', value=group, max_age=3600 * 24 * 30)
+            if 'phone' in request.POST:
+                tel = request.POST['phone']
+                tel = json.dumps(tel)
                 rep.set_cookie(key='tel', value=tel, max_age=3600 * 24 * 30)
+            if 'num' in request.POST:
+                num = request.POST['num']
+                num = json.dumps(num)
                 rep.set_cookie(key='num', value=num, max_age=3600 * 24 * 30)
             return rep
 
@@ -184,8 +193,9 @@ def submit2_view(request):
             god = request.GET['good']
             no = request.GET['no']
             shp = request.GET['shop']
+            pr = request.GET['pr']
             if no != '':
-                no = '商品编号：' + no
+                no = '商品编号：' + no + ', 价格' + pr
         else:
             god = ''
             no = ''
@@ -252,7 +262,7 @@ def spider_view(request):
     page = request.GET['pg']
     good = request.GET['good']
     re = request.GET['re']
-    res = parse_page(good, page)
+    res = jd_spider(good, page)
     page = int(page)
     dic = {'ver': VERSION, 'res': res, 'good': good, 'lastpg': page-1, 'nextpg': page+1, 're':re}
     return render(request, 'buyitem/buyspider.html', dic)
@@ -755,7 +765,7 @@ def print_excel(writer, word, wd, rawdata, of, cmp):
             worksheet.column_dimensions[get_column_letter(i)].width = wid + 2
     else:
         try:
-            data = data.drop(['11', '12', '13', '14'], axis=1)
+            data = data.drop(['11', '12', '13', '14', '15'], axis=1)
         except:
             pass
         data.to_excel(writer, sheet_name=word, index=False, startrow=3)
@@ -763,7 +773,7 @@ def print_excel(writer, word, wd, rawdata, of, cmp):
     worksheet = writer.sheets[word]
     mon = (datetime.datetime.today()).strftime("%m")
     mon = str(int(mon))
-    if cmp == 0:
+    if cmp == '股份':
         worksheet.cell(row=1, column=1).value = '            中国石油勘探开发研究院采购计划表(' + mon + '月)'
     else:
         worksheet.cell(row=1, column=1).value = '       中国石油集团科学技术研究院有限公司采购计划表(' + mon + '月)'
@@ -795,12 +805,39 @@ def log_view(request):
 
 
 # -------------------------------------------------------------
+# 函数名： jd_spider
+# 功能： 通过webdriver爬取页面（爬虫寄了）
+# -------------------------------------------------------------
+def jd_spider(item, page):
+        opt = webdriver.ChromeOptions()
+        opt.add_argument('headless')
+        path = r'D:\code\WorkingSystem\chromedriver.exe'
+        driver = webdriver.Chrome(options=opt, executable_path=path)
+        url = "https://search.jd.com/Search?keyword=%s&page=%s" % (item, page)
+        driver.get(url)
+        li = driver.find_elements_by_class_name('gl-item')  # 查找li标签
+        res_list = []
+        idx = 1
+        for l in li:
+            name = l.find_element_by_css_selector('.p-name').text
+            priz = l.find_element_by_css_selector('.p-price').text
+            shop = l.find_element_by_css_selector('.p-shop').text
+            number = l.get_attribute('data-sku')
+            href = "item.jd.com/%s.html" % number
+            if (len(name) != 0 and len(priz) != 0 and len(shop) != 0 and len(number) != 0):
+                info = {'idx': idx, 'name': name, 'price': priz, 'shop': shop, 'number': number, 'href': href}
+                res_list.append(info)
+                idx += 1
+        return res_list
+
+
+# -------------------------------------------------------------
 # 函数名： get_page
 # 功能： 爬取页面
 # -------------------------------------------------------------
 def get_page(url):
     headers = {
-         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.3'
     }
     try:
         html = requests.request("GET", url, headers=headers, timeout=10)
@@ -821,6 +858,7 @@ def parse_page(item, page):
     html = str(html)
     if html is not None:
         soup = BeautifulSoup(html, 'html.parser')
+        print(soup)
         li_all = soup.select('#J_goodsList ul .gl-item')
         res_list = []
         for li in li_all:
