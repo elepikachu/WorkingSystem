@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+<title>{{ ver }}-含碳量缺省值计算器</title>
+<link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+/* body 样式 */
+body {
+    font-family: Arial;
+    margin: 0;
+}
+
+/* 标题 */
+.header {
+    padding: 30px;
+    text-align: center;
+    background: darkgray;
+    color: white;
+}
+
+/* 标题字体加大 */
+.header h1 {
+    font-size: 40px;
+}
+
+/* 导航 */
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+}
+
+/* 导航栏样式 */
+.navbar a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+/* 鼠标移动到链接的颜色 */
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* 右侧链接*/
+.navbar a.right {
+    float: right;
+}
+
+/* 列容器 */
+.row {
+    display: -ms-flexbox; /* IE10 */
+    display: flex;
+    -ms-flex-wrap: wrap; /* IE10 */
+    flex-wrap: wrap;
+}
+
+
+/* 主要的内容区域 */
+.main {
+    -ms-flex: 70%; /* IE10 */
+    flex: 70%;
+    background-image: url({% static 'images/kuailong.png' %});
+    background-position: top;
+    padding: 20px;
+    text-align: center;
+}
+
+
+/* 底部 */
+.footer {
+    padding: 20px;
+    text-align: center;
+    background: #ddd;
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 700px 时, 让两栏上下堆叠显示 */
+@media screen and (max-width: 700px) {
+    .row {
+        flex-direction: column;
+    }
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 400px 时, 让导航栏目上下堆叠显示 */
+@media screen and (max-width: 400px) {
+    .navbar a {
+        float: none;
+        width: 100%;
+    }
+}
+</style>
+<script type="text/javascript">
+    window.onload=function() {
+        let tmp = document.querySelector('#tmp');
+        let sbm = document.querySelector('#cal');
+        tmp.addEventListener('keyup', (e) => {
+            createTags(e.target.value)
+
+            if (e.key == 'Enter') {
+                setTimeout(() => {
+                    e.target.value = ''
+                }, 10)
+
+                sbm.click()
+            }
+        })
+    }
+    function check_submit() {
+        let prs = document.querySelector('#prs');
+        let tmp = document.querySelector('#tmp');
+        if (prs.value === '') {
+            alert('没有填写GJ');
+            return false;
+        }
+        if (tmp.value === '') {
+            alert('没有填写吨碳');
+            return false;
+        }
+        if (isNaN(prs.value) !== false) {
+            alert('GJ请填写数字');
+            return false;
+        }
+        if (isNaN(tmp.value) !== false) {
+            alert('吨碳请填写数字');
+            return false;
+        }
+        return true;
+    }
+</script>
+</head>
+<body>
+<form action="/checal/carbon" method="post">
+    {% csrf_token %}
+<div class="header">
+  <h1>{{ ver }}-含碳量缺省值计算器</h1>
+  <p>Welcome to carbon calculator</p>
+</div>
+
+<div class="navbar">
+  <a href="/checal">应用首页</a>
+  <a href="minical">迷你计算器</a>
+  <a href="steam">蒸汽计算器</a>
+  <a href="carbon">含碳量缺省值计算器</a>
+  <a href="/" class="right">返回首页</a>
+</div>
+
+<div class="row">
+  <div class="main">
+      <p><b>请输入物质信息，回车或点击提交按钮确认</b></p><br />
+          GJ：
+          <input type="text" name="prs" id="prs" size="10"> 吨(Nm3)
+          吨碳：
+          <input type="text" name="tmp" id="tmp" size="20"> GJ
+
+      <br /><br /><br />
+      <input type="reset" name="res" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" value="计算CFi" onclick="return check_submit()" name="cal" id="cal" size="5">
+      {% if res == True %}
+      <br /><br /><b>计算完成</b><br /><br />
+      CFI: {{ z }} 吨碳/吨(万Nm3)燃料<br /><br />
+      <img src="{% static 'images/carb.png' %}" width="600px"/>
+      {% endif %}
+  </div>
+</div>
+
+<div class="footer">
+  <h2>
+      Powered by Elepikachu
+  </h2>
+</div>
+</form>
+</body>
+</html>

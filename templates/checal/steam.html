@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+<title>{{ ver }}-蒸汽计算器</title>
+<link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+/* body 样式 */
+body {
+    font-family: Arial;
+    margin: 0;
+}
+
+/* 标题 */
+.header {
+    padding: 30px;
+    text-align: center;
+    background: darkgray;
+    color: white;
+}
+
+/* 标题字体加大 */
+.header h1 {
+    font-size: 40px;
+}
+
+/* 导航 */
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+}
+
+/* 导航栏样式 */
+.navbar a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+/* 鼠标移动到链接的颜色 */
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* 右侧链接*/
+.navbar a.right {
+    float: right;
+}
+
+/* 列容器 */
+.row {
+    display: -ms-flexbox; /* IE10 */
+    display: flex;
+    -ms-flex-wrap: wrap; /* IE10 */
+    flex-wrap: wrap;
+}
+
+
+/* 主要的内容区域 */
+.main {
+    -ms-flex: 70%; /* IE10 */
+    flex: 70%;
+    background-image: url({% static 'images/kuailong.png' %});
+    background-position: top;
+    padding: 20px;
+    text-align: center;
+}
+
+
+/* 底部 */
+.footer {
+    padding: 20px;
+    text-align: center;
+    background: #ddd;
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 700px 时, 让两栏上下堆叠显示 */
+@media screen and (max-width: 700px) {
+    .row {
+        flex-direction: column;
+    }
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 400px 时, 让导航栏目上下堆叠显示 */
+@media screen and (max-width: 400px) {
+    .navbar a {
+        float: none;
+        width: 100%;
+    }
+}
+</style>
+<script type="text/javascript">
+    window.onload=function() {
+        let stm = document.querySelector('#stm');
+        let sbm = document.querySelector('#cal');
+        stm.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                setTimeout(() => {
+                    e.target.value = ''
+                }, 10)
+
+                sbm.click()
+            }
+        })
+        let uni = document.querySelector('#uni');
+        let res = document.querySelector('#res');
+        let dic = {'J':1000000000, 'kJ':1000000, 'MJ':1000, 'GJ':1}
+        uni.addEventListener('change', function () {
+            console.log(uni.options[uni.selectedIndex].value)
+            var cal_res = {{ water_H }} * (dic[uni.options[uni.selectedIndex].value]);
+            res.innerHTML = '蒸汽热量：&nbsp;' + cal_res + '[' + uni.options[uni.selectedIndex].value + ']';
+        })
+    }
+    function check_submit() {
+        let prs = document.querySelector('#prs');
+        let tmp = document.querySelector('#tmp');
+        let stm = document.querySelector('#stm');
+        if (prs.value === '') {
+            alert('没有填写压力');
+            return false;
+        }
+        if (tmp.value === '') {
+            alert('没有填写温度');
+            return false;
+        }
+        if (stm.value === '') {
+            alert('没有填写蒸汽量');
+            return false;
+        }
+        if (isNaN(prs.value) !== false) {
+            alert('压力请填写数字');
+            return false;
+        }
+        if (isNaN(tmp.value) !== false) {
+            alert('温度请填写数字');
+            return false;
+        }
+        if (isNaN(stm.value) !== false) {
+            alert('蒸汽请填写数字');
+            return false;
+        }
+        return true;
+    }
+</script>
+</head>
+<body>
+<form action="/checal/steam" method="post">
+    {% csrf_token %}
+<div class="header">
+  <h1>{{ ver }}-蒸汽计算器</h1>
+  <p>Welcome to steam calculator</p>
+</div>
+
+<div class="navbar">
+  <a href="/checal">应用首页</a>
+  <a href="minical">迷你计算器</a>
+  <a href="steam">蒸汽计算器</a>
+  <a href="carbon">含碳量缺省值计算器</a>
+  <a href="/" class="right">返回首页</a>
+</div>
+
+<div class="row">
+  <div class="main">
+      <p><b>请输入物质信息，回车或点击提交按钮确认</b></p><br />
+          压力：
+          <input type="text" name="prs" id="prs" size="10">
+          <select name="uprs">
+              <option>Pa</option>
+              <option>kPa</option>
+              <option selected="selected">MPa</option>
+              <option>atm</option>
+          </select>
+          温度：
+          <input type="text" name="tmp" id="tmp" size="20">
+          <select name="utmp">
+              <option>K</option>
+              <option selected="selected">C</option>
+          </select><br /><br />
+          蒸汽量：
+          <input type="text" name="stm" id="stm"  size="20"> 万吨/年
+      <br /><br /><br />
+      <input type="reset" name="res" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="submit" value="计算热量" onclick="return check_submit()" name="cal" id="cal" size="5">
+      {% if res == True %}
+      <br /><br /><b>计算完成</b><br /><br />
+      Region number: {{ z }}<br />
+      {% if z != 0 %}
+      Specific volume:&nbsp;{{ v }}[m³/kg]<br />
+      Specific enthalpy:&nbsp;{{ h }}[kJ/kg]<br />
+      Specific entropy:&nbsp;{{ s }}[kJ/kgK]<br />
+      Specific isobaric heat capacity:&nbsp;{{ cp }}[kJ/kgK]<br />
+      Specific isocoric heat capacity:&nbsp;{{ cv }}[kJ/kgK]<br />
+      Speed of sound{{ w }}:&nbsp;[m/s]<br />
+      Cubic expansion coefficient:&nbsp;{{ alfav }}[1/K]<br />
+      Isothermal compressibility:&nbsp;{{ kt }}[1/K]<br />
+      <p id="res">蒸汽热量：&nbsp;{{ water_H }} [GJ]</p>单位换算：<select id="uni">
+              <option>J</option>
+              <option>kJ</option>
+              <option>MJ</option>
+              <option selected="selected">GJ</option>
+          </select><br />
+      {% else %}
+          数据错误，请检查后重新计算
+      {% endif %}
+      {% endif %}
+  </div>
+</div>
+
+<div class="footer">
+  <h2>
+      Powered by Elepikachu
+  </h2>
+</div>
+</form>
+</body>
+</html>

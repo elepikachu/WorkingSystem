@@ -2,7 +2,7 @@
 {% load static %}
 <html>
 <head>
-<title>化工计算器</title>
+<title>{{ ver }}-迷你计算器</title>
 <link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -65,10 +65,51 @@ body {
     flex-wrap: wrap;
 }
 
+.side {
+    flex: 20%;
+    background-image: url({% static 'images/babara.jpeg' %});
+    background-position: top;
+    padding: 20px;
+    line-height: 300%;
+    text-align: center;
+}
+
+.side h5 {
+    font-size: 20px;
+}
+
+.side a {
+    font-size: 20px;
+}
+
+.side h5 {
+    font-size: 20px;
+}
+
+.side a {
+    font-size: 20px;
+}
+
+.rrs {
+    width: 198px;
+    height: 50px;
+    border: 1px solid black;
+    border-bottom: none;
+    position: relative;
+}
+
+#result {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+}
+
 
 /* 主要的内容区域 */
 .main {
-    background-color: #FFa488;
+    -ms-flex: 70%; /* IE10 */
+    flex: 70%;
+    background-image: url({% static 'images/kuailong.png' %});
     background-position: top;
     padding: 20px;
     text-align: center;
@@ -100,10 +141,10 @@ body {
 <script src="{% static 'js/calculator.js' %}"></script>
 </head>
 <body>
-<form action="/checal" method="post">
+<form action="/checal/steam" method="post">
     {% csrf_token %}
 <div class="header">
-  <h1>化工计算器 首页</h1>
+  <h1>{{ ver }}-迷你计算器</h1>
   <p>Welcome to mini calculator</p>
 </div>
 
@@ -115,15 +156,57 @@ body {
   <a href="/" class="right">返回首页</a>
 </div>
 
+<div class="row">
   <div class="main">
-      <h2>欢迎使用化工计算器</h2>
-      <h5>Thanks for using calculator for chemical engineering</h5>
-      <img src="{% static 'images/cheme.jpeg' %}" align="center">
+      <div class="rrs">
+		<span id="result"></span>
+	</div>
+	<table border="1px"  width="200px" height="300px">
+		<tbody align="center">
+			<tr>
+				<td width="50px" onclick="leftBracket()">(</td>
+				<td width="50px" onclick="rightBracket()">)</td>
+				<td width="50px" onclick="ppow()">^</td>
+				<td width="50px" onclick="psqrt()">√</td>
+			</tr>
+			<tr>
+				<td onclick="c()">C</td>
+				<td onclick="po('%')">%</td>
+				<td width="50px" onclick="backspace()"><img src="{% static 'images/back.png' %}" width="25px"/></td>
+				<td onclick="po('÷')">÷</td>
+			</tr>
+			<tr>
+				<td onclick="pn(7)">7</td>
+				<td onclick="pn(8)">8</td>
+				<td onclick="pn(9)">9</td>
+				<td onclick="po('×')">×</td>
+			</tr>
+			<tr>
+				<td onclick="pn(4)">4</td>
+				<td onclick="pn(5)">5</td>
+				<td onclick="pn(6)">6</td>
+				<td onclick="po('-')">-</td>
+			</tr>
+			<tr>
+				<td onclick="pn(1)">1</td>
+				<td onclick="pn(2)">2</td>
+				<td onclick="pn(3)">3</td>
+				<td onclick="po('+')">+</td>
+			</tr>
+			<tr>
+				<td onclick="pn('00')">00</td>
+				<td onclick="pn(0)">0</td>
+				<td onclick="pn('.')">.</td>
+				<td onclick="equals1()">=</td>
+			</tr>
+		</tbody>
+	</table>
+  </div>
 </div>
 
 <div class="footer">
   <h2>
-      powered by elepikachu
+      Powered by Elepikachu
   </h2>
 </div>
 </form>

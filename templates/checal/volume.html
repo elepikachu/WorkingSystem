@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+<title>{{ ver }}-燃气组分计算-体积分数</title>
+<link rel="shortcut icon" href="{% static 'images/icon.ico' %}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+/* body 样式 */
+body {
+    font-family: Arial;
+    margin: 0;
+}
+
+/* 标题 */
+.header {
+    padding: 30px;
+    text-align: center;
+    background: darkgray;
+    color: white;
+}
+
+/* 标题字体加大 */
+.header h1 {
+    font-size: 40px;
+}
+
+/* 导航 */
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+}
+
+/* 导航栏样式 */
+.navbar a {
+    float: bottom;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+/* 鼠标移动到链接的颜色 */
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* 列容器 */
+.row {
+    display: -ms-flexbox; /* IE10 */
+    display: flex;
+    -ms-flex-wrap: wrap; /* IE10 */
+    flex-wrap: wrap;
+}
+
+.side {
+    flex: 20%;
+    background-image: url({% static 'images/babara.jpeg' %});
+    background-position: top;
+    padding: 20px;
+    line-height: 300%;
+    text-align: center;
+}
+
+.side h5 {
+    font-size: 20px;
+}
+
+.side a {
+    font-size: 20px;
+}
+
+.side h5 {
+    font-size: 20px;
+}
+
+.side a {
+    font-size: 20px;
+}
+
+
+/* 主要的内容区域 */
+.main {
+    -ms-flex: 70%; /* IE10 */
+    flex: 70%;
+    background-image: url({% static 'images/kuailong.png' %});
+    background-position: top;
+    padding: 20px;
+    text-align: center;
+}
+
+
+/* 底部 */
+.footer {
+    padding: 20px;
+    text-align: center;
+    background: #ddd;
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 700px 时, 让两栏上下堆叠显示 */
+@media screen and (max-width: 700px) {
+    .row {
+        flex-direction: column;
+    }
+}
+
+/* 响应式布局 - 在屏幕设备宽度尺寸小于 400px 时, 让导航栏目上下堆叠显示 */
+@media screen and (max-width: 400px) {
+    .navbar a {
+        float: none;
+        width: 100%;
+    }
+}
+</style>
+<script type="text/javascript">
+    function generateForm() {
+            let numfield = document.querySelector('#num');
+            num = numfield.value;
+            let afm = document.querySelector('.aftermain');
+            if (afm.innerHTML !== '') {
+                afm.innerHTML = '';
+            }
+            console.log(num)
+            for (var i = 0; i < num; i++) {
+                afm.innerHTML += "<b>conpoment" + (i+1) + '</b><br/><br/>';
+                afm.innerHTML += "甲烷:<input name='c11" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "乙烷:<input name='c21" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "乙烯:<input name='c22" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "乙炔:<input name='c23" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "丙烷:<input name='c31" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "丙烯:<input name='c32" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "异丁烷:<input name='ic4" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "正丁烷:<input name='nc4" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "丁烯:<input name='c42" + i + "' type='input' value='0' style='width:50px'/><br /> ";
+                afm.innerHTML += "戊烷:<input name='c51" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "戊烯:<input name='c52" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "氢气:<input name='h2" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "水:<input name='h2o" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "硫化氢:<input name='h2s" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "氮气:<input name='n2" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "一氧化碳:<input name='co1" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "二氧化碳:<input name='co2" + i + "' type='input' value='0' style='width:50px'/> ";
+                afm.innerHTML += "<br/><br/>";
+            }
+            afm.innerHTML += "<input type='submit' value='计算' onclick='do_cal()' id='btn' name='btn'>"
+
+    }
+    function do_cal () {
+        return true;
+    }
+</script>
+</head>
+<body>
+<form action="/components/volume" method="post">
+    {% csrf_token %}
+<div class="header">
+  <h1>{{ ver }}-燃气组分计算-体积分数</h1>
+  <p>Welcome to volume components calculation</p>
+</div>
+
+<div class="navbar">
+  <a href="/">返回首页</a>
+</div>
+
+<div class="row">
+    <div class="side">
+        <a href="mass">质量分数</a><br />
+        <a href="volume">体积分数</a><br />
+    </div>
+<div class="main">
+      <p><b>请输入组分数，点击确认键后在生成表单里填写信息</b></p><br />
+      <select id="num" name="num">
+              <option selected="selected">1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+              <option>6</option>
+              <option>7</option>
+              <option>8</option>
+              <option>9</option>
+              <option>10</option>
+          </select>
+      <br /><br />
+      <input type='button' value="文件上传页面" id="goes" onclick="window.location.href='volumeup'"><br/><br />
+      <input type='button' value="手动填写" onclick="generateForm()" id="btn">
+      <br /><br />
+  <div class="aftermain">
+  </div>
+</div>
+</div>
+
+<div class="footer">
+  <h2>
+      Powered by Elepikachu
+  </h2>
+</div>
+</form>
+</body>
+</html>
