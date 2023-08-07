@@ -38,7 +38,7 @@ body {
 
 /* 导航栏样式 */
 .navbar a {
-    float: bottom;
+    float: left;
     display: block;
     color: white;
     text-align: center;
@@ -50,6 +50,11 @@ body {
 .navbar a:hover {
     background-color: #ddd;
     color: black;
+}
+
+/* 右侧链接*/
+.navbar a.right {
+    float: right;
 }
 
 /* 列容器 */
@@ -83,7 +88,6 @@ body {
     font-size: 20px;
 }
 
-
 /* 主要的内容区域 */
 .main {
     -ms-flex: 70%; /* IE10 */
@@ -93,7 +97,6 @@ body {
     padding: 20px;
     text-align: center;
 }
-
 
 /* 底部 */
 .footer {
@@ -157,7 +160,7 @@ body {
 </script>
 </head>
 <body>
-<form action="/components/mass" method="post">
+<form action="/checal/mass" method="post">
     {% csrf_token %}
 <div class="header">
   <h1>{{ ver }}-燃气组分计算-质量分数</h1>
@@ -165,7 +168,12 @@ body {
 </div>
 
 <div class="navbar">
-  <a href="/">返回首页</a>
+  <a href="/checal">应用首页</a>
+  <a href="minical">迷你计算器</a>
+  <a href="steam">蒸汽计算器</a>
+  <a href="carbon">含碳量缺省值计算器</a>
+  <a href="mass">燃料气组分计算</a>
+  <a href="/" class="right">返回首页</a>
 </div>
 
 <div class="row">

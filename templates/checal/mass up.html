@@ -25,12 +25,17 @@ body {
 
 /* 导航栏样式 */
 .navbar a {
-    float: bottom;
+    float: left;
     display: block;
     color: white;
     text-align: center;
     padding: 14px 20px;
     text-decoration: none;
+}
+
+/* 右侧链接*/
+.navbar a.right {
+    float: right;
 }
 
 /* 鼠标移动到链接的颜色 */
@@ -128,7 +133,7 @@ body {
 </script>
 </head>
 <body>
-<form action="/components/massup" method="post" enctype="multipart/form-data">
+<form action="/checal/massup" method="post" enctype="multipart/form-data">
     {% csrf_token %}
 <div class="header">
   <h1>{{ ver }}--燃气组分计算-质量分数-文件上传</h1>
@@ -136,7 +141,12 @@ body {
 </div>
 
 <div class="navbar">
-  <a href="/">返回首页</a>
+  <a href="/checal">应用首页</a>
+  <a href="minical">迷你计算器</a>
+  <a href="steam">蒸汽计算器</a>
+  <a href="carbon">含碳量缺省值计算器</a>
+  <a href="mass">燃料气组分计算</a>
+  <a href="/" class="right">返回首页</a>
 </div>
 
 <div class="row">
