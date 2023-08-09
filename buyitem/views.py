@@ -100,11 +100,12 @@ def submit_view(request):
             shp = request.GET['shop']
             pr = request.GET['pr']
             if no != '':
-                no = '商品编号：' + no + ', 价格' + pr
+                no = '商品编号：' + no + '，价格：' + pr
         else:
             god = ''
             no = ''
             shp = ''
+            nm = ''
         dic = {'ver': VERSION, 'psn': psn, 'grp': grp, 'tel': tel, 'num': num, 'god': god, 'no': no, 'shp': shp}
         return render(request, 'buyitem/buysubmit.html', dic)
     elif request.method == 'POST':
@@ -195,11 +196,12 @@ def submit2_view(request):
             shp = request.GET['shop']
             pr = request.GET['pr']
             if no != '':
-                no = '商品编号：' + no + ', 价格' + pr
+                no = '商品编号：' + no + '，价格：' + pr
         else:
             god = ''
             no = ''
             shp = ''
+            nm = ''
         dic = {'ver': VERSION, 'psn': psn, 'grp': grp, 'tel': tel, 'num': num, 'god': god, 'no': no, 'shp': shp}
         return render(request, 'buyitem/buysubmit2.html', dic)
     elif request.method == 'POST':

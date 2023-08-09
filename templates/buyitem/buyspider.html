@@ -151,9 +151,9 @@ body {
                 <td>{{ item.shop }}</td>
                 <td>
                     {% if re == 1 %}
-                        <a href="/buyitem/submit?no={{ item.number }}&shop={{ item.shop }}&good={{ good }}&pr={{ item.price }}">选我</a>
+                        <a href="/buyitem/submit?no={{ item.number }}&shop={{ item.shop }}&good={{ item.name }}&pr={{ item.price }}">选我</a>
                     {% else %}
-                        <a href="/buyitem/submit2?no={{ item.number }}&shop={{ item.shop }}&good={{ good }}&pr={{ item.price }}">选我</a>
+                        <a href="/buyitem/submit2?no={{ item.number }}&shop={{ item.shop }}&good={{ item.name }}&pr={{ item.price }}">选我</a>
                     {% endif %}
                 </td>
             </tr>
